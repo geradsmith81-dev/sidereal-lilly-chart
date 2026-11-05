@@ -32,13 +32,42 @@ WHEEL_THEME = dict(
     label_bg=PALETTE['void'], harmony=PALETTE['ion'], tension=PALETTE['ember'], house_line=PALETTE['orbit'],
     harmony_name='teal', tension_name='orange', accent_name='Pink')
 
+# Phone layout: all text except headings is pure white (user request), on the wheel and calendar too.
+WHITE = '#ffffff'
+WHEEL_THEME_PHONE = dict(WHEEL_THEME, ink=WHITE, grey=WHITE, band_text=WHITE, spoke=PALETTE['dust'], accent_what='symbol')
+
 # Elections calendar: lightness rises from Avoid to Best, so the order also reads in greyscale.
 GRADE_COLOURS = {'avoid': '#20233f', 'fair': '#3f4680', 'good': PALETTE['nebula'], 'best': PALETTE['brass']}
 
 
+# Phone layout: all text except headings is white (user request). Built as one selector without line breaks inside
+# it: in CSS a space or line break between ":is(...)" and ":not(...)" would mean "an element inside", not "and".
+_WHITE_TARGETS = ', '.join([
+    'p', 'li', 'span', 'label', 'small', 'summary', 'a', 'code', 'blockquote', 'td', 'th', 'b', 'strong', 'em',
+    '[data-testid="stMarkdownContainer"]', '[data-testid="stMarkdownContainer"] *',
+    '[data-testid="stCaptionContainer"]', '[data-testid="stCaptionContainer"] *',
+    '[data-testid="stMetricValue"]', '[data-testid="stMetricValue"] *', '[data-testid="stMetricLabel"] *',
+    '[data-testid="stSidebarNav"] *', '[data-baseweb="select"] *', '[role="option"]', '[role="option"] *',
+    '[data-testid="stExpander"] summary *', '[data-testid="stAlert"] *'])
+_NOT_WHITE = (':not(.lilly-badge)'                                    # grade labels keep their own colours
+              ':not(:is(h1, h2, h3, h4, h5, h6))'                     # headings keep gold
+              ':not(:is(h1, h2, h3, h4, h5, h6) *)'
+              ':not([data-testid="stBaseButton-primary"] *)')         # the gold button keeps its own text colour
+WHITE_SELECTOR = f'body :is({_WHITE_TARGETS}){_NOT_WHITE}'
+PHONE_TEXT_CSS = (
+    '/* phone layout: all text white except headings, grade labels and the gold button */\n'
+    f'    {WHITE_SELECTOR} {{ color: #ffffff !important; }}\n'
+    '    body input, body textarea { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }\n'
+    '    body a:not(button *) { text-decoration: underline; }\n'
+    '    body .lilly-badge[data-g="avoid"], body .lilly-badge[data-g="fair"] { color: #ffffff !important; }\n'
+    '    body :is(h4, h5, h6) { color: BRASS_PALE !important; }\n')
+
+
 def css(bg_path='assets/background.jpg', phone=False):
-    """phone=True: use the smaller portrait copy of the background (assets/background_phone.jpg) if present."""
+    """phone=True: use the smaller portrait copy of the background (assets/background_phone.jpg) if present,
+    and make all text except headings white."""
     p = PALETTE
+    phone_css = PHONE_TEXT_CSS.replace('BRASS_PALE', p['brass_pale']) if phone else ''
     bg = ''
     if phone:
         small = os.path.join(os.path.dirname(bg_path), 'background_phone.jpg')
@@ -81,6 +110,7 @@ def css(bg_path='assets/background.jpg', phone=False):
     }}
     .lilly-day {{ padding: 0.32rem 0; border-bottom: 1px solid {p['orbit']}44; line-height: 1.9; }}
     .lilly-day b {{ color: {p['brass_pale']}; margin-right: 0.4rem; }}
+    {phone_css}
     .lilly-badge {{ padding: 0.08rem 0.5rem; border-radius: 0.6rem; font-weight: 600; white-space: nowrap;
         border: 1px solid {p['orbit']}; margin-right: 0.25rem; }}
     </style>"""

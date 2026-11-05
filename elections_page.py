@@ -132,11 +132,11 @@ else:
         R = ll.interpret(rows, bands, cusps, stars, sun_up, beams_rule=beams_rule)
         asc, mc = se.angles(t, lat, lon)
         fig = cw.draw_wheel(rows, bands, f"{place}, {m['local']:%d %b %Y %H:%M}", asc, mc, cusps=cusps,
-                            scores={p['planet']: p['net'] for p in R['planets']}, aspects=R['aspects'], theme=theme.WHEEL_THEME,
-                            compact=PHONE)
+                            scores={p['planet']: p['net'] for p in R['planets']}, aspects=R['aspects'],
+                            theme=theme.WHEEL_THEME_PHONE if PHONE else theme.WHEEL_THEME, compact=PHONE)
         st.pyplot(fig, width='stretch')
         if PHONE:
-            st.caption('  \n'.join(cw.legend_lines(theme.WHEEL_THEME)))
+            st.caption('  \n'.join(cw.legend_lines(theme.WHEEL_THEME_PHONE)))
     with right:
         st.markdown(f"**Peak at {m['local']:%H:%M}**: {m['rising']} rising; Lord of the Ascendant **{m['lord1'] or '—'}**, "
                     f"lord of the {ll._ord(U['house'])} **{m['lordm'] or '—'}**; Moon in {m['moon']}; "
@@ -185,6 +185,6 @@ with st.expander('Sources and certainty (elections)'):
     st.markdown("Each rule carries its source in Lilly and a **basis**: *sourced* (Lilly's own rule), *sourced in substance* "
                 "(Lilly's doctrine, the app's wording), or *app rule*. The point values are app choices. Lilly built his "
                 "judgments on the balance of testimonies, not on a fixed formula.")
-    st.dataframe(pd.read_csv(os.path.join(HERE, 'data', 'election_rules.csv'), encoding='utf-8'), hide_index=True, width='stretch')
+    device.table(pd.read_csv(os.path.join(HERE, 'data', 'election_rules.csv'), encoding='utf-8'))
     st.caption('This is traditional symbolism, offered for study and reflection; controlled studies have not found '
                'astrological timing to affect outcomes.')

@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 
 import user_profile
+import device
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, 'assets')
@@ -96,7 +97,7 @@ well as it does for whichever of you it suits less.
 
 **On a phone.** The app switches to a *phone layout* by itself: the date, time and place boxes are in a fold-out
 panel at the top of the page, calendars come first as a day-by-day list, the chart wheel has larger symbols, and
-tables show their main columns. The switch **Phone layout** in the sidebar turns it on or off by hand.
+tables show their main columns, and all text except the headings is white. The switch **Phone layout** in the sidebar turns it on or off by hand.
 """)
 
 # ---------------------------------------------------------------- checks and honesty
@@ -130,8 +131,7 @@ st.markdown("Your name, picture, birth details and friends are " +
 # ---------------------------------------------------------------- credits
 st.subheader('Sources and credits')
 src = pd.read_csv(os.path.join(HERE, 'data', 'sources.csv'), encoding='utf-8')
-st.dataframe(src, hide_index=True, width='stretch',
-             column_config={'url': st.column_config.LinkColumn('Link')})
+device.table(src, column_config={'url': st.column_config.LinkColumn('Link')})
 st.caption("Lilly's text: Wellcome Collection copy of the 1647 edition, Internet Archive item b30338724, public domain. "
            "Planet data: NASA JPL DE440s via Skyfield. Places: GeoNames (CC BY 4.0). Time zones: IANA tz database. "
            "Colours and the starfield background were designed for this app.")

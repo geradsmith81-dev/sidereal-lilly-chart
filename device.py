@@ -51,8 +51,20 @@ def where_inputs():
     return 'in the panel above' if phone() else 'in the sidebar'
 
 
-def table(df, phone_cols, **kw):
-    """A table; on a phone only the listed columns (the full table is in the downloads, or with phone layout off)."""
+def _cell(v):
+    """How a cell is written when the table is styled (numbers as short as the plain table shows them)."""
+    if v is None or (isinstance(v, float) and v != v):
+        return ''
+    if isinstance(v, float):
+        return f'{v:g}'
+    return str(v)
+
+
+def table(df, phone_cols=None, **kw):
+    """A table. On a phone: only the listed columns (all if phone_cols is None), with the cell text in white.
+    (The column headings are drawn by Streamlit in the theme's text colour, #f3eee2, a near-white.)"""
     if phone():
-        df = df[[c for c in phone_cols if c in df.columns]]
+        if phone_cols:
+            df = df[[c for c in phone_cols if c in df.columns]]
+        df = df.style.set_properties(color='#ffffff').format(_cell)
     st.dataframe(df, hide_index=True, width='stretch', **kw)

@@ -107,8 +107,9 @@ with st.container(border=True):
     cols = st.columns(2)
     for col, p, n in ((cols[0], me, na), (cols[1], fr, nb)):
         col.markdown(person_line(p), unsafe_allow_html=True)
-        col.dataframe(pd.DataFrame([dict(Place=k, Constellation=n['bands'][k], **{'Ecl. long. (°)': round(v, 1)})
-                                    for k, v in n['places'].items()]), hide_index=True, width='stretch')
+        with col:
+            device.table(pd.DataFrame([dict(Place=k, Constellation=n['bands'][k], **{'Ecl. long. (°)': round(v, 1)})
+                                       for k, v in n['places'].items()]))
     syn = natal.synastry(na, nb, my_name, fr['name'])
     st.markdown(f"**{syn['summary']}**  Agreement {syn['harmony']:.0f} · discord {syn['discord']:.0f}.")
     if syn['items']:
@@ -197,6 +198,6 @@ st.download_button('Download the times good for both (.ics calendar)',
                    el.ics(W[:40], f"{U['label']} ({my_name} & {fr['name']})", place, step),
                    file_name=f"together_{kind}_{start:%Y%m%d}.ics", mime='text/calendar')
 with st.expander('Sources and certainty (birth charts)'):
-    st.dataframe(pd.read_csv(os.path.join(HERE, 'data', 'natal_rules.csv'), encoding='utf-8'), hide_index=True, width='stretch')
+    device.table(pd.read_csv(os.path.join(HERE, 'data', 'natal_rules.csv'), encoding='utf-8'))
     st.caption('This is traditional symbolism, offered for study and reflection; controlled studies have not found '
                'astrological comparison or timing to predict how relationships or undertakings turn out.')

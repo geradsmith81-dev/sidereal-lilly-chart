@@ -96,7 +96,7 @@ def grade_moment(j, q):
 
 def badge(g):
     fg = theme.PALETTE['void'] if g in ('good', 'best') else theme.PALETTE['starlight']
-    return (f"<span style='background:{theme.GRADE_COLOURS[g]};color:{fg};padding:0.1rem 0.55rem;border-radius:0.6rem;"
+    return (f"<span class='lilly-badge' data-g='{g}' style='background:{theme.GRADE_COLOURS[g]};color:{fg};padding:0.1rem 0.55rem;border-radius:0.6rem;"
             f"font-weight:600;border:1px solid {theme.PALETTE['orbit']}'>{GRADE_TXT[g]}</span>")
 
 

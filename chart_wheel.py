@@ -33,7 +33,8 @@ def legend_lines(theme=None):
     return ['Filled = above horizon · open = below · number = Lilly net score (p.115) · R = retrograde · ☊ ☋ nodes · ⊗ Part of Fortune',
             f"Aspects: {th_['harmony_name']} = sextile/trine, {th_['tension_name']} = square/opposition; "
             "solid = applying, dashed = separating",
-            f"{th_['accent_name']} label = body outside the 13 ecliptic constellations (read by its ecliptic band)"]
+            f"{th_['accent_name']} {th_.get('accent_what', 'label')} = body outside the 13 ecliptic constellations "
+            "(read by its ecliptic band)"]
 
 
 def draw_wheel(rows, bands, title, asc, mc, cusps=None, scores=None, aspects=None, ax=None, theme=None, compact=False):
@@ -124,7 +125,7 @@ def draw_wheel(rows, bands, title, asc, mc, cusps=None, scores=None, aspects=Non
         if compact:
             # the planet's symbol is the marker (filled = above the horizon); its score sits beside it, across the
             # ring, so that planets bunched together (staggered towards the centre) do not cover each other
-            ax.plot([th, th], [AR, rad - 0.05], color=th_['grey'], lw=0.3, alpha=0.6, zorder=1)
+            ax.plot([th, th], [AR, rad - 0.05], color=th_.get('spoke', th_['grey']), lw=0.3, alpha=0.6, zorder=1)
             ax.text(th, rad, GLYPH[r['body']], ha='center', va='center', fontsize=F['planet'] + 0.5,
                     color=th_['label_bg'] if up else col, zorder=6,
                     bbox=dict(boxstyle='circle,pad=0.22', fc=col if up else th_['down_face'], ec=col, lw=1.1))
@@ -135,7 +136,7 @@ def draw_wheel(rows, bands, title, asc, mc, cusps=None, scores=None, aspects=Non
                 else:                   # top or bottom: score to the side
                     xy, ha, va = (10, 0), 'left', 'center'
                 ax.annotate(lab, (th, rad), xytext=xy, textcoords='offset points', ha=ha, va=va,
-                            fontsize=F['planet'] - 1.5, color=th_['accent'] if off else th_['ink'], zorder=7,
+                            fontsize=F['planet'] - 1.5, color=th_['ink'], zorder=7,
                             bbox=dict(fc=th_['label_bg'], ec='none', alpha=0.65, pad=0.4))
             continue
         ax.plot(th, rad, marker='o', ms=F['ms'], mfc=col if up else th_['down_face'], mec=col, mew=1.4, ls='none', zorder=5)

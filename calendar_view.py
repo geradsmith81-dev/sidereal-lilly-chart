@@ -35,6 +35,7 @@ def heatmap(res, start, days, h0, h1, step, compact=False):
         if 0 <= i < days and 0 <= j < slots:
             grid[i, j] = code[r['grade']]
     width, row, fs = (4.0, 0.26, 8.5) if compact else (9.5, 0.24, 7)
+    ink, ink2 = (theme.WHITE, theme.WHITE) if compact else (PAL['starlight'], PAL['dust'])   # phone: all labels white
     height = max(3.2 if not compact else 2.6, row * days + 1.2)
     fig = Figure(figsize=(width, height))
     fig.patch.set_alpha(0)
@@ -45,18 +46,18 @@ def heatmap(res, start, days, h0, h1, step, compact=False):
               extent=(h0 - step / 120, h0 + (slots - 0.5) * step / 60, days - 0.5, -0.5))
     ax.set_yticks(range(days))
     ax.set_yticklabels([f"{(start + dt.timedelta(days=i)):{'%a %d' if compact else '%a %d %b'}}" for i in range(days)],
-                       fontsize=fs, color=PAL['starlight'])
+                       fontsize=fs, color=ink)
     hours = list(range(h0, h1 + 1, 3 if compact else 1))
     ax.set_xticks(hours)
-    ax.set_xticklabels([f'{h:02d}' if compact else f'{h:02d}:00' for h in hours], fontsize=fs, color=PAL['starlight'], rotation=0)
-    ax.tick_params(colors=PAL['dust'], length=2)
+    ax.set_xticklabels([f'{h:02d}' if compact else f'{h:02d}:00' for h in hours], fontsize=fs, color=ink, rotation=0)
+    ax.tick_params(colors=ink2, length=2)
     for s in ax.spines.values():
         s.set_visible(False)
-    ax.set_xlabel('Local clock hour' if compact else 'Local clock time', fontsize=fs + 0.5 if compact else 8, color=PAL['dust'])
+    ax.set_xlabel('Local clock hour' if compact else 'Local clock time', fontsize=fs + 0.5 if compact else 8, color=ink2)
     gap, x0, lfs = (0.22, 0.06, 9) if compact else (0.12, 0.13, 8)
     for k, (g, c) in enumerate(GRADE_COL.items()):
         fig.text(x0 + gap * k, 0.008, '■', color=c, fontsize=12 if not compact else 13, va='bottom')
-        fig.text((x0 + 0.056 if compact else 0.155) + gap * k, 0.012, GRADE_TXT[g], color=PAL['starlight'],
+        fig.text((x0 + 0.056 if compact else 0.155) + gap * k, 0.012, GRADE_TXT[g], color=ink,
                  fontsize=lfs, va='bottom')
     fig.subplots_adjust(left=0.15 if compact else 0.12, right=0.98 if compact else 0.99, top=0.985 if compact else 0.98,
                         bottom=max(0.06, (1.0 / height) if compact else 0.9 / (row * days + 1.2)))
@@ -66,7 +67,7 @@ def heatmap(res, start, days, h0, h1, step, compact=False):
 def badge(g):
     """A grade as a small coloured label (HTML), in the calendar colours."""
     fg = PAL['void'] if g in ('good', 'best') else PAL['starlight']
-    return f"<span class='lilly-badge' style='background:{GRADE_COL[g]};color:{fg}'>{GRADE_TXT[g]}</span>"
+    return f"<span class='lilly-badge' data-g='{g}' style='background:{GRADE_COL[g]};color:{fg}'>{GRADE_TXT[g]}</span>"
 
 
 def day_list(res, wins, start, days, step, per_day=3):

@@ -94,11 +94,11 @@ st.caption(f'{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f}) = {utc_dt:%Y
 left, right = st.columns([1.15, 1])
 with left:
     fig = cw.draw_wheel(rows, bands, f'{place}, {local:%d %b %Y %H:%M}', asc, mc, cusps=cusps,
-                        scores={p['planet']: p['net'] for p in R['planets']}, aspects=R['aspects'], theme=theme.WHEEL_THEME,
-                        compact=PHONE)
+                        scores={p['planet']: p['net'] for p in R['planets']}, aspects=R['aspects'],
+                        theme=theme.WHEEL_THEME_PHONE if PHONE else theme.WHEEL_THEME, compact=PHONE)
     st.pyplot(fig, width='stretch')
     if PHONE:
-        st.caption('  \n'.join(cw.legend_lines(theme.WHEEL_THEME)))
+        st.caption('  \n'.join(cw.legend_lines(theme.WHEEL_THEME_PHONE)))
 
 with right:
     st.subheader(f"Day of {ph['day_ruler']}, hour of {ph['hour_ruler']}")
@@ -191,5 +191,5 @@ st.caption('House cusps (Regiomontanus): ' + ' · '.join(f"{i + 1}: {c['constell
 with st.expander('Sources and certainty'):
     st.markdown('Each statement carries a tag: **Lilly** (from *Christian Astrology*, 1647, with page) or **app rule** '
                 '(where the app had to adapt Lilly to the sidereal IAU sky). The tables are in the *data* folder as CSV files.')
-    st.dataframe(pd.read_csv(os.path.join(HERE, 'data', 'uncertainty_log.csv'), encoding='utf-8'), hide_index=True, width='stretch')
-    st.dataframe(pd.read_csv(os.path.join(HERE, 'data', 'sources.csv'), encoding='utf-8'), hide_index=True, width='stretch')
+    device.table(pd.read_csv(os.path.join(HERE, 'data', 'uncertainty_log.csv'), encoding='utf-8'))
+    device.table(pd.read_csv(os.path.join(HERE, 'data', 'sources.csv'), encoding='utf-8'))
