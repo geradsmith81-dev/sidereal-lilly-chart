@@ -127,7 +127,7 @@ def draw_wheel(rows, bands, title, asc, mc, cusps=None, scores=None, aspects=Non
             # ring, so that planets bunched together (staggered towards the centre) do not cover each other
             ax.plot([th, th], [AR, rad - 0.05], color=th_.get('spoke', th_['grey']), lw=0.3, alpha=0.6, zorder=1)
             ax.text(th, rad, GLYPH[r['body']], ha='center', va='center', fontsize=F['planet'] + 0.5,
-                    color=th_['label_bg'] if up else col, zorder=6,
+                    color=th_['label_bg'] if up else th_.get('glyph_open', col), zorder=6,
                     bbox=dict(boxstyle='circle,pad=0.22', fc=col if up else th_['down_face'], ec=col, lw=1.1))
             lab = (f"{sc:+d}" if sc is not None else '') + (' R' if r.get('retrograde') else '')
             if lab:

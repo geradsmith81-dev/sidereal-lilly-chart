@@ -206,7 +206,7 @@ def initials_html(name, size, border='#e6c06a'):
     ini = ''.join(w[0] for w in name.split()[:2]).upper() or '✦'
     return (f'<div style="width:{size}px;height:{size}px;border-radius:50%;border:2px solid {border};'
             f'display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;'
-            f'font-size:{size * 0.4:.0f}px;color:{border};background:rgba(230,192,106,0.08);">{html.escape(ini)}</div>')
+            f'font-size:{size * 0.4:.0f}px;color:#ffffff;background:rgba(230,192,106,0.08);">{html.escape(ini)}</div>')
 
 
 def person_avatar(p, size=64, border='#e6c06a'):
@@ -361,7 +361,7 @@ def sidebar_card():
     with st.sidebar:
         if p['name'] or p['avatar']:
             st.markdown(f'<div style="display:flex;align-items:center;gap:12px;margin:2px 0 6px 0;">{avatar_html(56)}'
-                        f'<div><div style="font-family:Georgia,serif;font-size:1.15rem;color:#f6dc9b;">'
+                        f'<div><div style="font-family:Georgia,serif;font-size:1.15rem;color:#ffffff;">'
                         f'{html.escape(p["name"]) or "&nbsp;"}</div>'
                         f'<div style="font-size:0.75rem;color:#b7bcd9;">{html.escape(birth_text(p["birth"]))}</div></div></div>',
                         unsafe_allow_html=True)

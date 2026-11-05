@@ -12,8 +12,8 @@ Palette roles:
   orbit       #5d64a0  rings, house lines, borders (decoration only, not text)
   starlight   #f3eee2  body text
   dust        #b7bcd9  secondary text, captions
-  brass       #e6c06a  primary accent: planets above the horizon, metric values, buttons
-  brass_pale  #f6dc9b  headings
+  brass       #e6c06a  primary accent (not used for text): planets above the horizon, buttons, sliders, 'Best'
+  brass_pale  #f6dc9b  headings - the only gold text (all other gold text is white, user request)
   ion         #6fd6d8  sextile / trine aspect lines
   ember       #f08a5d  square / opposition aspect lines
   nebula      #a98ae6  'Good' on the elections calendar
@@ -34,7 +34,8 @@ WHEEL_THEME = dict(
 
 # Phone layout: all text except headings is pure white (user request), on the wheel and calendar too.
 WHITE = '#ffffff'
-WHEEL_THEME_PHONE = dict(WHEEL_THEME, ink=WHITE, grey=WHITE, band_text=WHITE, spoke=PALETTE['dust'], accent_what='symbol')
+WHEEL_THEME_PHONE = dict(WHEEL_THEME, ink=WHITE, grey=WHITE, band_text=WHITE, spoke=PALETTE['dust'], accent_what='circle',
+                         glyph_open=WHITE)   # symbol of a planet below the horizon: white inside its coloured ring
 
 # Elections calendar: lightness rises from Avoid to Best, so the order also reads in greyscale.
 GRADE_COLOURS = {'avoid': '#20233f', 'fair': '#3f4680', 'good': PALETTE['nebula'], 'best': PALETTE['brass']}
@@ -96,13 +97,21 @@ def css(bg_path='assets/background.jpg', phone=False):
     h1, h2, h3 {{ font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', serif !important;
         color: {p['brass_pale']} !important; letter-spacing: 0.01em; }}
     h1 {{ text-shadow: 0 0 18px {p['brass']}44; }}
-    [data-testid="stMetricValue"] {{ color: {p['brass']}; font-family: Georgia, serif; }}
+    [data-testid="stMetricValue"] {{ color: #ffffff; font-family: Georgia, serif; }}
     [data-testid="stCaptionContainer"], .stCaption {{ color: {p['dust']} !important; }}
     [data-testid="stVerticalBlockBorderWrapper"] {{ border-color: {p['orbit']} !important;
         background: rgba(27,32,69,0.55); }}
     blockquote {{ border-left: 3px solid {p['brass']}99 !important; }}
-    code {{ color: {p['brass_pale']}; background: rgba(230,192,106,0.10); }}
+    code {{ color: #ffffff; background: rgba(230,192,106,0.10); }}
     a {{ color: {p['ion']}; }}
+    /* gold is kept for headings only (user request): Streamlit draws some text in the accent colour - the value
+       above a slider handle, the selected or hovered tab, and buttons while hovered or pressed - make it white.
+       The gold primary button keeps its own text colour. */
+    [data-testid="stSliderThumbValue"], [data-testid="stSliderThumbValue"] *,
+    [data-testid="stTab"], [data-testid="stTab"] * {{ color: #ffffff !important; }}
+    button:is(:hover, :active, :focus, :focus-visible):not([data-testid="stBaseButton-primary"]),
+    button:is(:hover, :active, :focus, :focus-visible):not([data-testid="stBaseButton-primary"]) * {{ color: #ffffff !important; }}
+    [data-testid="stExpander"] summary:hover, [data-testid="stExpander"] summary:hover * {{ color: #ffffff !important; }}
     /* touch screens (phones, tablets): iPhones and iPads ignore a fixed background, so let it scroll */
     @media (hover: none) and (pointer: coarse) {{
         .stApp {{ background-attachment: scroll; }}
@@ -118,7 +127,7 @@ def css(bg_path='assets/background.jpg', phone=False):
         .lilly-day {{ font-size: 1.02rem; }}
     }}
     .lilly-day {{ padding: 0.32rem 0; border-bottom: 1px solid {p['orbit']}44; line-height: 1.9; }}
-    .lilly-day b {{ color: {p['brass_pale']}; margin-right: 0.4rem; }}
+    .lilly-day b {{ color: #ffffff; margin-right: 0.4rem; }}
     {phone_css}
     .lilly-badge {{ padding: 0.08rem 0.5rem; border-radius: 0.6rem; font-weight: 600; white-space: nowrap;
         border: 1px solid {p['orbit']}; margin-right: 0.25rem; }}
