@@ -1,0 +1,69 @@
+# Sidereal chart · Lilly's reading
+
+A sidereal star chart on the real IAU constellations (13 ecliptic bands at their true widths, NASA JPL DE440s
+positions via Skyfield), read through William Lilly's *Christian Astrology* (London, 1647): essential dignities
+(p.104), the table of fortitudes and debilities (p.115), Regiomontanus houses, planetary day and hour, Lilly's
+orbs (p.107) and his "Considerations before Judgment" (pp.121-123). Every table is a CSV in `data/` with page
+citations; adaptations to the unequal IAU bands are listed in `data/uncertainty_log.csv`.
+
+## Look
+
+Colour scheme "Astrolabe and nebula" (deep indigo, brass, nebula tones; `theme.py`), over a starfield background
+generated in code (`assets/background.jpg`). Text contrast is at least 4.5:1 throughout.
+
+## Two pages
+
+* **Chart**: the chart for one moment, with Lilly's dignities, scores, aspects and Forecast. The button *What does
+  this mean? (plain English)* opens a window that restates the Forecast without technical terms and grades the moment
+  for the four undertakings of the Auspicious dates page, against every hour of the same week.
+* **Auspicious dates**: an elections calendar for beginning a romantic relationship (7th house, Venus), a friendship
+  (11th, Jupiter), a life transition (4th, the Moon) or a project (10th, Mercury). It is framed from Lilly's
+  perfection (ch. XXI), strength (p.115) and Considerations before Judgment (pp.121-123). Rules and weights are in
+  `data/election_rules.csv`. It exports .ics and .csv.
+
+## Friends
+
+A third page lets two people compare charts without accounts. Each exports a **friend card** (a small `.lillycard`
+JSON file, or a `LILLY1:` text code) and sends it person to person. The page compares the two nativities
+(Ptolemy, *Tetrabiblos* IV.7: Sun, Moon, Ascendant and Part of Fortune) and finds election times good for both, where
+the joint score is the lower of the two personal scores. Rules and weights are in `data/natal_rules.csv`. Imported cards
+are validated, and pictures are re-encoded.
+
+## Profile
+
+A profile box in the sidebar takes a name, a picture and birth details, and personalises the page titles ("Gerad's sidereal chart").
+In this online version the profile is kept **only in the visitor's browser session**. Nothing is written to the server,
+which all visitors share. The desktop version (started with `Start app.bat`, which sets `LILLY_LOCAL_PROFILE=1`)
+saves it in a local `profile/` folder instead.
+
+## Phones and tablets
+
+The app detects phones from the browser's User-Agent and switches to a phone layout (`device.py`): inputs in a
+fold-out panel at the top of each page instead of the sidebar, calendars as a day-by-day list followed by a
+phone-sized grid, a compact chart wheel, shorter tables, and a smaller portrait background
+(`assets/background_phone.jpg`). The sidebar switch **Phone layout** overrides the detection. Desktop rendering is
+unchanged.
+
+## About page
+
+A fourth page explains the app in plain English. It shows Lilly's engraved portrait and the 1647 title page if
+`assets/lilly_portrait.jpg` and `assets/lilly_title_page.jpg` are present (from the public-domain Wellcome copy,
+archive.org item b30338724). If they are absent, it shows a link to the scan.
+
+## Put it online (no programming)
+
+See **DEPLOY GUIDE.txt** for step-by-step instructions. In short:
+
+1. On github.com create a new repository and choose **Add file → Upload files**.
+2. Drag the *contents* of this folder (not the folder itself) into the page, so that `app.py` sits at the top level.
+   Make sure the `.streamlit`, `assets`, `data` and `ephem` folders come along.
+3. On share.streamlit.io: **Create app → Yup, I have an app**, choose the repository, branch `main`,
+   main file `app.py`, and under *Advanced settings* pick **Python 3.12**. Deploy.
+4. The first start takes about a minute longer: the app downloads the NASA JPL file `de440s.bsp` (32 MB).
+
+## Credits
+Lilly's text: Wellcome Library copy of the 1647 edition (Internet Archive item b30338724, public domain).
+Planetary data: NASA JPL DE440s via Skyfield. Places: GeoNames (CC BY 4.0). Time zones: IANA tz database.
+
+This reading is traditional symbolism for study and reflection; controlled studies have not found
+astrological charts to be predictive.
