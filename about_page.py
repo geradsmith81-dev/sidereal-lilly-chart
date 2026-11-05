@@ -97,7 +97,7 @@ well as it does for whichever of you it suits less.
 
 **On a phone.** The app switches to a *phone layout* by itself: the date, time and place boxes are in a fold-out
 panel at the top of the page, calendars come first as a day-by-day list, the chart wheel has larger symbols, and
-tables show their main columns, and all text except the headings is white. The switch **Phone layout** in the sidebar turns it on or off by hand.
+tables show their main columns in black on a light parchment background, and all other text except the headings is white. The switch **Phone layout** in the sidebar turns it on or off by hand.
 """)
 
 # ---------------------------------------------------------------- checks and honesty

@@ -40,7 +40,7 @@ saves it in a local `profile/` folder instead.
 
 The app detects phones from the browser's User-Agent and switches to a phone layout (`device.py`): inputs in a
 fold-out panel at the top of each page instead of the sidebar, calendars as a day-by-day list followed by a
-phone-sized grid, a compact chart wheel, shorter tables, all text except headings in white, and a smaller
+phone-sized grid, a compact chart wheel, shorter tables (black text on parchment), all other text except headings in white, and a smaller
 portrait background
 (`assets/background_phone.jpg`). The sidebar switch **Phone layout** overrides the detection. Desktop rendering is
 unchanged.

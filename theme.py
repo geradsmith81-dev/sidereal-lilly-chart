@@ -52,7 +52,8 @@ _WHITE_TARGETS = ', '.join([
 _NOT_WHITE = (':not(.lilly-badge)'                                    # grade labels keep their own colours
               ':not(:is(h1, h2, h3, h4, h5, h6))'                     # headings keep gold
               ':not(:is(h1, h2, h3, h4, h5, h6) *)'
-              ':not([data-testid="stBaseButton-primary"] *)')         # the gold button keeps its own text colour
+              ':not([data-testid="stBaseButton-primary"] *)'          # the gold button keeps its own text colour
+              ':not(.lilly-table *)')                                 # tables: black on parchment (below)
 WHITE_SELECTOR = f'body :is({_WHITE_TARGETS}){_NOT_WHITE}'
 PHONE_TEXT_CSS = (
     '/* phone layout: all text white except headings, grade labels and the gold button */\n'
@@ -60,7 +61,15 @@ PHONE_TEXT_CSS = (
     '    body input, body textarea { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }\n'
     '    body a:not(button *) { text-decoration: underline; }\n'
     '    body .lilly-badge[data-g="avoid"], body .lilly-badge[data-g="fair"] { color: #ffffff !important; }\n'
-    '    body :is(h4, h5, h6) { color: BRASS_PALE !important; }\n')
+    '    body :is(h4, h5, h6) { color: BRASS_PALE !important; }\n'
+    '    /* phone tables (device.html_table): black text on parchment, headings included */\n'
+    '    .lilly-table-wrap { overflow-x: auto; margin: 0.25rem 0 0.9rem; border-radius: 8px; border: 1px solid #5d64a0; }\n'
+    '    .lilly-table { border-collapse: collapse; width: 100%; margin: 0; font-size: 0.9rem; line-height: 1.35; }\n'
+    '    .lilly-table th, .lilly-table td { color: #000000 !important; text-align: left; vertical-align: top;\n'
+    '        padding: 0.32rem 0.5rem; border: none; border-bottom: 1px solid #d3c9ae; }\n'
+    '    .lilly-table th { background: #e4dac2 !important; font-weight: 700; white-space: nowrap; }\n'
+    '    .lilly-table td { background: #f3eee2 !important; min-width: 3.5rem; }\n'
+    '    .lilly-table a { color: #000000 !important; text-decoration: underline; }\n')
 
 
 def css(bg_path='assets/background.jpg', phone=False):
