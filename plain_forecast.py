@@ -202,3 +202,41 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
 
     st.info('This is a reading in the terms of a 1647 book, for study and reflection. Controlled studies have not found '
             'astrological charts to predict events, so please do not base important decisions on it.')
+
+# ---------------------------------------------------------------- the Strengths and the Weaknesses, each in its own window
+def _rule_items(items):
+    for x in items:
+        with st.container(border=True):
+            st.markdown(('⚠ ' if x.get('id') in CAUTIONS else '') + x['text'])
+            basis = str(x.get('basis') or '')
+            st.caption(x['source'] + (f' · {basis}' if basis and basis != 'nan' else ''))
+
+
+def _rule_header(place, local):
+    name = user_profile.get()['name']
+    st.caption(f"{place} · {local:%A %d %B %Y, %H:%M} local time" + (f" · prepared for {name}" if name else ''))
+
+
+@st.dialog('Strengths', width='large')
+def show_strengths(fc, place, local):
+    _rule_header(place, local)
+    st.markdown("Lilly's rules that **favour** this moment, in his words, each with the page of *Christian Astrology* "
+                "(1647) it comes from.")
+    if fc['strengths']:
+        _rule_items(fc['strengths'])
+    else:
+        st.info('None of the strengths in Lilly\'s rules apply at this moment.')
+    st.caption('For the same in plain English, close this window and press "What does this mean? (plain English)".')
+
+
+@st.dialog('Weaknesses', width='large')
+def show_weaknesses(fc, place, local):
+    _rule_header(place, local)
+    st.markdown("Lilly's rules that **count against** this moment, in his words, each with the page of *Christian "
+                "Astrology* (1647) it comes from. Lines marked ⚠ are among his *considerations before judgment*: they "
+                "warn that the chart may not be safe to read at all, rather than that things will go badly.")
+    if fc['weaknesses']:
+        _rule_items(fc['weaknesses'])
+    else:
+        st.info('None of the weaknesses in Lilly\'s rules apply at this moment.')
+    st.caption('For the same in plain English, close this window and press "What does this mean? (plain English)".')

@@ -196,20 +196,20 @@ def to_avatar(file_bytes):
     return out.getvalue()
 
 
-def img_html(png, size, border='#e6c06a'):
+def img_html(png, size, border='#f2994a'):
     b64 = base64.b64encode(png).decode()
     return (f'<img src="data:image/png;base64,{b64}" width="{size}" height="{size}" alt="profile picture" '
             f'style="border-radius:50%; object-fit:cover; border:2px solid {border}; box-shadow:0 0 14px {border}44;">')
 
 
-def initials_html(name, size, border='#e6c06a'):
+def initials_html(name, size, border='#f2994a'):
     ini = ''.join(w[0] for w in name.split()[:2]).upper() or '✦'
     return (f'<div style="width:{size}px;height:{size}px;border-radius:50%;border:2px solid {border};'
             f'display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;'
-            f'font-size:{size * 0.4:.0f}px;color:#ffffff;background:rgba(230,192,106,0.08);">{html.escape(ini)}</div>')
+            f'font-size:{size * 0.4:.0f}px;color:#ffffff;background:rgba(242,153,74,0.08);">{html.escape(ini)}</div>')
 
 
-def person_avatar(p, size=64, border='#e6c06a'):
+def person_avatar(p, size=64, border='#f2994a'):
     if p.get('avatar'):
         return img_html(p['avatar'], size, border)
     if p.get('name'):
@@ -369,7 +369,7 @@ def sidebar_card():
             st.markdown(f'<div style="display:flex;align-items:center;gap:12px;margin:2px 0 6px 0;">{avatar_html(56)}'
                         f'<div><div style="font-family:Georgia,serif;font-size:1.15rem;color:#ffffff;">'
                         f'{html.escape(p["name"]) or "&nbsp;"}</div>'
-                        f'<div style="font-size:0.75rem;color:#b7bcd9;">{html.escape(birth_text(p["birth"]))}</div></div></div>',
+                        f'<div style="font-size:0.75rem;color:#c4ccdb;">{html.escape(birth_text(p["birth"]))}</div></div></div>',
                         unsafe_allow_html=True)
             label = 'Edit profile'
         else:

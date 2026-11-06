@@ -1,4 +1,4 @@
-"""Sidereal chart read through William Lilly's Christian Astrology (1647) - four pages:
+"""Sidereal Oracle: the real sky read through William Lilly's Christian Astrology (1647) - four pages:
   1. Chart: the chart for one moment, with Lilly's dignities, scores and Forecast.
   2. Auspicious dates: an elections calendar for beginning an undertaking.
   3. Friends: share friend cards, compare two nativities, find times good for both.
@@ -13,8 +13,8 @@ matplotlib.use('Agg')
 
 import user_profile
 
-st.set_page_config(page_title=user_profile.personal("Sidereal chart · William Lilly's reading",
-                                                   "{who} sidereal chart · William Lilly's reading"), layout='wide',
+st.set_page_config(page_title=user_profile.personal("Sidereal Oracle · William Lilly's reading",
+                                                   "{who} Sidereal Oracle · William Lilly's reading"), layout='wide',
                    # the app icon (an astrolabe): browser tab, the app window's title bar and taskbar button
                    page_icon=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'lilly_icon.png'))
 try:
@@ -34,4 +34,7 @@ pg = st.navigation([st.Page(os.path.join(HERE, 'chart_page.py'), title='Chart', 
                     st.Page(os.path.join(HERE, 'about_page.py'), title='About', icon=':material/menu_book:')])
 user_profile.sidebar_card()
 device.switch()
+# credit for the background image (required by its CC BY 4.0 licence), on every page
+st.sidebar.caption('Background: Hubble\'s image of the Lagoon Nebula (heic1808a). Credit: NASA, ESA, STScI. '
+                   '[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)')
 pg.run()

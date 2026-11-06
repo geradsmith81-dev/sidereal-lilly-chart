@@ -1,5 +1,5 @@
-DEPLOY GUIDE - putting "Sidereal chart - William Lilly's reading" online
-=========================================================================
+DEPLOY GUIDE - putting "Sidereal Oracle - William Lilly's reading" online
+==========================================================================
 
 You need: a free GitHub account and a free Streamlit Community Cloud account.
 Nothing to install. Use Chrome or Edge on your PC (they can upload folders
@@ -27,7 +27,7 @@ PART B. MAKE A GITHUB ACCOUNT AND AN EMPTY "REPOSITORY"
 1. Go to github.com and click "Sign up". Follow the steps and confirm your
    e-mail address. (Skip this if you already have an account.)
 2. Once signed in, click the "+" at the top right > "New repository".
-3. Repository name:  sidereal-lilly-chart
+3. Repository name:  sidereal-oracle
    Choose "Public". (Lilly's 1647 text is public domain, and the files hold
    no personal information. Your profile and friends are never uploaded.)
 4. Leave everything else as it is: no README, no .gitignore, no licence.
@@ -75,11 +75,11 @@ PART D. START THE APP ON STREAMLIT COMMUNITY CLOUD
    whether you already have an app, choose "Yup, I have an app" (deploy a
    public app from GitHub).
 3. Fill in:
-     Repository:      <your GitHub name>/sidereal-lilly-chart
+     Repository:      <your GitHub name>/sidereal-oracle
      Branch:          main
      Main file path:  app.py
-     App URL:         optional - type a short name, e.g. lilly-chart, to get
-                      lilly-chart.streamlit.app (if it is free)
+     App URL:         optional - type a short name, e.g. sidereal-oracle, to
+                      get sidereal-oracle.streamlit.app (if it is free)
 4. Click "Advanced settings". Set "Python version" to 3.12 (the app was
    checked for it). Click "Save". The Python version cannot be changed later
    without deleting and re-creating the app.
@@ -137,8 +137,8 @@ LATER CHANGES (when you get new zips from me)
 4. Streamlit notices the change and updates the app within a minute or two.
 
 
-IF THE COLOURS ARE WRONG (red buttons, white input boxes)
------------------------------------------------------
+IF THE COLOURS ARE WRONG (bright pinkish-red buttons, white input boxes)
+-----------------------------------------------------------------------
 The file .streamlit/config.toml did not upload. On github.com open your
 repository > "Add file" > "Create new file". In the name box type exactly
     .streamlit/config.toml
@@ -152,10 +152,10 @@ gatherUsageStats = false
 
 [theme]
 base = "dark"
-primaryColor = "#e6c06a"
-backgroundColor = "#0a0c1c"
-secondaryBackgroundColor = "#131733"
-textColor = "#f3eee2"
+primaryColor = "#b5461a"
+backgroundColor = "#0b111c"
+secondaryBackgroundColor = "#111927"
+textColor = "#f7f1ea"
 font = "sans serif"
 
 and click "Commit changes...". The app picks up the colours within a minute

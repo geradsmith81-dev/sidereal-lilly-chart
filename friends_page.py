@@ -23,7 +23,7 @@ st.caption('Share your friend card with someone, add theirs, then compare your b
 
 def person_line(p, size=44):
     return (f'<div style="display:flex;align-items:center;gap:12px;">{upf.person_avatar(p, size)}'
-            f'<div><b>{html.escape(p["name"])}</b><br><span style="color:#b7bcd9;font-size:0.85rem;">'
+            f'<div><b>{html.escape(p["name"])}</b><br><span style="color:#c4ccdb;font-size:0.85rem;">'
             f'{html.escape(upf.birth_text(p["birth"]))}</span></div></div>')
 
 

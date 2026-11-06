@@ -38,7 +38,7 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
     return rows, bands, cusps, R, ph, fc, asc, mc, stars
 
 
-user_profile.title("Sidereal chart · William Lilly's reading", "{who} sidereal chart · William Lilly's reading")
+user_profile.title("Sidereal Oracle · William Lilly's reading", "{who} Sidereal Oracle · William Lilly's reading")
 PHONE = device.phone()
 
 # ---------------- inputs (same as the first app; a fold-out panel at the top on a phone) ----------------
@@ -125,26 +125,24 @@ with right:
 st.subheader('Forecast')
 with st.container(border=True):
     st.markdown(fc['summary'])
-    s_col, w_col = st.columns(2)
-    with s_col:
-        st.markdown('**Strengths**')
-        st.markdown('\n'.join(f"- {x['text']}  \n  <small>{x['source']}</small>" for x in fc['strengths'])
-                    if fc['strengths'] else '_None under the current rules._', unsafe_allow_html=True)
-    with w_col:
-        st.markdown('**Weaknesses**')
-        st.markdown('\n'.join(f"- {x['text']}  \n  <small>{x['source']}</small>" for x in fc['weaknesses'])
-                    if fc['weaknesses'] else '_None under the current rules._', unsafe_allow_html=True)
-    st.caption(fc['note'])
-    b1, b2 = st.columns(2)
+    # the Strengths, the Weaknesses and the plain-English summary each open in their own window (user request)
+    b0, b1_, b1 = st.columns(3)
+    if b0.button(f"Strengths ({len(fc['strengths'])})", icon=':material/thumb_up:', key='strengths_btn', width='stretch',
+                 help="Lilly's rules that favour this moment, with his page references."):
+        plain_forecast.show_strengths(fc, place, local)
+    if b1_.button(f"Weaknesses ({len(fc['weaknesses'])})", icon=':material/report:', key='weaknesses_btn', width='stretch',
+                  help="Lilly's rules that count against this moment, with his page references."):
+        plain_forecast.show_weaknesses(fc, place, local)
     if b1.button('What does this mean? (plain English)', icon=':material/lightbulb:', key='plain_btn', width='stretch',
                  help='A summary of the Forecast without the technical terms, with this moment judged for the four '
                       'undertakings of the Auspicious dates page.'):
         tzkey = tzname if (tzname and not override) else f'UTC{tz:+.2f}'
         plain_forecast.show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, beams_rule, place)
-    b2.download_button('Download forecast (.txt)',
+    st.caption(fc['note'])
+    st.download_button('Download forecast (.txt)',
                        forecast.as_text(fc, header=(f"Prepared for {user_profile.get()['name']}\n" if user_profile.get()['name'] else '')
                                        + f"{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f})"),
-                       file_name=f"forecast_{local:%Y%m%d_%H%M}.txt", mime='text/plain', width='stretch')
+                       file_name=f"forecast_{local:%Y%m%d_%H%M}.txt", mime='text/plain', icon=':material/download:')
 
 st.subheader("The planets in Lilly's words")
 for p in R['planets']:

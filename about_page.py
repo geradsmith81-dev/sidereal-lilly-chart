@@ -11,7 +11,7 @@ ASSETS = os.path.join(HERE, 'assets')
 SCAN = 'https://archive.org/details/b30338724'
 
 user_profile.title('About this app', 'About {who} app')
-st.markdown("This app draws an accurate map of the sky for any moment and place, and reads it the way the English "
+st.markdown("**Sidereal Oracle** draws an accurate map of the sky for any moment and place, and reads it the way the English "
             "astrologer **William Lilly** taught in his book ***Christian Astrology*** (London, 1647). This page explains, "
             "in plain words, where every part comes from and what the app adds of its own.")
 
@@ -134,4 +134,5 @@ src = pd.read_csv(os.path.join(HERE, 'data', 'sources.csv'), encoding='utf-8')
 device.table(src, column_config={'url': st.column_config.LinkColumn('Link')})
 st.caption("Lilly's text: Wellcome Collection copy of the 1647 edition, Internet Archive item b30338724, public domain. "
            "Planet data: NASA JPL DE440s via Skyfield. Places: GeoNames (CC BY 4.0). Time zones: IANA tz database. "
-           "Colours and the starfield background were designed for this app.")
+           "Background: Hubble's image of the Lagoon Nebula (heic1808a), credit NASA, ESA, STScI, CC BY 4.0; "
+           "the colours of the app were taken from it.")

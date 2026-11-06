@@ -1,4 +1,4 @@
-# Sidereal chart · Lilly's reading
+# Sidereal Oracle · William Lilly's reading
 
 A sidereal star chart on the real IAU constellations (13 ecliptic bands at their true widths, NASA JPL DE440s
 positions via Skyfield), read through William Lilly's *Christian Astrology* (London, 1647): essential dignities
@@ -8,7 +8,7 @@ citations; adaptations to the unequal IAU bands are listed in `data/uncertainty_
 
 ## Look
 
-Colour scheme "Astrolabe and nebula" (deep indigo, brass, nebula tones; `theme.py`), over a starfield background
+Colour scheme "Lagoon" (`theme.py`), taken from the background image: Hubble's 28th-anniversary picture of the Lagoon Nebula (heic1808a), credit NASA, ESA, STScI, [CC BY 4.0](https://esahubble.org/images/heic1808a/). The credit is shown in the sidebar on every page
 generated in code (`assets/background.jpg`). Text contrast is at least 4.5:1 throughout.
 
 ## Two pages
@@ -31,7 +31,7 @@ are validated, and pictures are re-encoded.
 
 ## Profile
 
-A profile box in the sidebar takes a name, a picture and birth details, and personalises the page titles ("Gerad's sidereal chart").
+A profile box in the sidebar takes a name, a picture and birth details, and personalises the page titles ("Gerad's Sidereal Oracle").
 In this online version the profile is kept **only in the visitor's browser session**. Nothing is written to the server,
 which all visitors share. The desktop version (started with `Start app.bat`, which sets `LILLY_LOCAL_PROFILE=1`)
 saves it in a local `profile/` folder instead.
