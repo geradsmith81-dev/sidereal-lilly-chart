@@ -234,6 +234,12 @@ def card_file(include_picture=True):
     return json.dumps(make_card(include_picture), ensure_ascii=False, indent=1).encode('utf-8')
 
 
+def card_filename():
+    """'Gerad Smith' -> 'Gerad_Smith.lillycard' (characters Windows does not allow in file names are dropped)."""
+    safe = re.sub(r'[\\/:*?"<>|]+', '', get()['name']).strip().replace(' ', '_')
+    return (safe or 'friend_card') + '.lillycard'
+
+
 def card_code():
     """Short text code without the picture: LILLY1:<base64url(zlib(json))>."""
     raw = json.dumps(make_card(False), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
@@ -370,6 +376,16 @@ def sidebar_card():
             label = 'Add your name and picture'
         if st.button(label, key='profile_btn', icon=':material/account_circle:', width='stretch'):
             edit_dialog()
+        # one click: the user's friend card file, to send to friends (also on the Friends page, with more choices)
+        if p['name'] and p['birth']:
+            st.download_button('Download my friend card', card_file(True), file_name=card_filename(),
+                               mime='application/json', key='card_dl_sidebar', icon=':material/badge:', width='stretch',
+                               on_click='ignore',
+                               help='Saves your friend card (.lillycard: your name, birth details and picture) to your '
+                                    'Downloads folder. Send it to a friend by e-mail or message; they add it on their '
+                                    'Friends page. To leave your picture out, or to copy a text code, use the Friends page.')
+        elif p['name'] or p['avatar']:
+            st.caption('To make your friend card, add your birth date, time and place: click Edit profile.')
         st.divider()
 
 

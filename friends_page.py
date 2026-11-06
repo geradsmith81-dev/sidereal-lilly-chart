@@ -40,7 +40,7 @@ else:
         pic = st.checkbox('Include my picture in the card file', value=True, key='fr_pic')
         a, b = st.columns(2)
         a.download_button('Download my friend card (.lillycard)', upf.card_file(pic),
-                          file_name=f"{me['name'].replace(' ', '_')}.lillycard", mime='application/json', width='stretch')
+                          file_name=upf.card_filename(), mime='application/json', width='stretch')
         with b.popover('Or copy a text code', width='stretch'):
             st.caption('Copy this code (button at the right of the box) and paste it into an e-mail or message. '
                        'The code does not include your picture.')

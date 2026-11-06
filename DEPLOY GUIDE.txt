@@ -46,9 +46,9 @@ PART C. UPLOAD THE FILES (the step most often done wrong)
    - Drag the CONTENTS, not the folder sidereal-lilly-chart itself.
    - Do not use the "choose your files" link: it cannot upload folders.
 3. Wait until the list of files below the box stops growing. It should
-   list 39 files, among them:
+   list 40 files, among them:
        .streamlit/config.toml
-       assets/background.jpg      assets/background_phone.jpg
+       assets/background.jpg      assets/background_phone.jpg   assets/lilly_icon.png
        data/... (13 files ending in .csv)
        ephem/.gitkeep
        app.py   requirements.txt   README.md
@@ -111,6 +111,21 @@ IF SOMETHING GOES WRONG
   a minute.
 - Your profile, picture and friends are kept online only while the browser
   tab is open (for privacy). Keep your friend card files to add them again.
+
+
+ADD THE APP TO YOUR PHONE'S HOME SCREEN
+---------------------------------------
+Once the app is online, open its address on the phone, then:
+- iPhone or iPad (Safari): tap the Share button (a square with an arrow;
+  in newer versions it is inside the "..." menu), scroll down, tap
+  "Add to Home Screen", then "Add".
+- Android (Chrome): tap the three dots at the top right, then "Add to home
+  screen" (or "Install app"), then "Add".
+An icon then starts the app like any other app. Note: free Streamlit
+hosting does not let an app choose its home-screen picture, so the phone
+picks one itself - usually a small picture of the page or a letter, not the
+gold astrolabe used on the computer. The app itself works the same.
+If the app was asleep, the first tap shows the "wake up" button.
 
 
 LATER CHANGES (when you get new zips from me)

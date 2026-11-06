@@ -14,7 +14,9 @@ matplotlib.use('Agg')
 import user_profile
 
 st.set_page_config(page_title=user_profile.personal("Sidereal chart · William Lilly's reading",
-                                                   "{who} sidereal chart · William Lilly's reading"), layout='wide')
+                                                   "{who} sidereal chart · William Lilly's reading"), layout='wide',
+                   # the app icon (an astrolabe): browser tab, the app window's title bar and taskbar button
+                   page_icon=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'lilly_icon.png'))
 try:
     import sidereal_engine  # noqa: F401  (loads, or on first start downloads, the JPL file)
 except Exception as e:          # e.g. first start without internet: de440s.bsp cannot be downloaded
