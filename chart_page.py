@@ -41,23 +41,40 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
 user_profile.title('The Sidereal Oracle', 'The Sidereal Oracle')      # home page title (user request)
 PHONE = device.phone()
 
+def set_now(tzkey):
+    """Put the present moment (local clock time in tzkey) into the date and time boxes."""
+    n = inputs.now_local(tzkey)
+    st.session_state['c_year'] = min(max(n.year, 1850), 2149)
+    st.session_state['c_month'] = n.month
+    st.session_state['day_value'] = n.day
+    st.session_state['c_time'] = dt.time(n.hour, n.minute)
+    st.session_state['c_now_tz'] = tzkey
+
+
+if 'c_time' not in st.session_state:              # the page opens at the present moment (user request)
+    set_now(inputs.start_timezone())
+
 # ---------------- inputs (same as the first app; a fold-out panel at the top on a phone) ----------------
 with device.input_panel('Chart input: date, time and place'):
     if not PHONE:
         st.header('Chart input')
-    st.markdown('**Date**')
+    dh, nb = st.columns([2.2, 1], vertical_alignment='bottom')
+    dh.markdown('**Date**')
+    if nb.button('Now', key='c_now', icon=':material/schedule:', width='stretch',
+                 help='Set the date and time to the present moment, in the local time of the chosen place.'):
+        set_now(st.session_state.get('c_last_tz') or inputs.start_timezone())
     yc, mc_, dc = st.columns([1.3, 1.4, 1])
-    today = dt.date.today()
-    year = yc.number_input('Year', min_value=1850, max_value=2149, value=min(max(today.year, 1850), 2149), step=1,
+    year = yc.number_input('Year', min_value=1850, max_value=2149, step=1, key='c_year',
                            help='Type any year from 1850 to 2149 (range of the NASA JPL DE440s data).')
-    month = mc_.selectbox('Month', range(1, 13), index=today.month - 1, format_func=lambda m: calendar.month_abbr[m])
+    month = mc_.selectbox('Month', range(1, 13), format_func=lambda m: calendar.month_abbr[m], key='c_month')
     ndays = calendar.monthrange(int(year), int(month))[1]
-    if st.session_state.get('day_value', today.day) > ndays:          # e.g. 31 Jan -> Feb keeps the last day
+    if st.session_state.get('day_value', 1) > ndays:          # e.g. 31 Jan -> Feb keeps the last day
         st.session_state['day_value'] = ndays
-    day = dc.number_input('Day', min_value=1, max_value=ndays, step=1, key='day_value',
-                          value=None if 'day_value' in st.session_state else min(today.day, ndays))
+    day = dc.number_input('Day', min_value=1, max_value=ndays, step=1, key='day_value')
     d = dt.date(int(year), int(month), int(day))
-    tm = st.time_input('Local clock time (24-hour clock)', dt.time(12, 0), step=60)
+    tm = st.time_input('Local clock time (24-hour clock)', step=60, key='c_time')
+    st.caption(f"The page opens at the present moment (local time, {st.session_state.get('c_now_tz', '')}). "
+               'Press Now to return to the present.')
     place, lat, lon, tzname, elev = inputs.place_picker('c')
     local_naive = dt.datetime.combine(d, tm)
     override = False
@@ -69,6 +86,7 @@ with device.input_panel('Chart input: date, time and place'):
             st.info(tz_note)
     else:
         tz = st.number_input('UTC offset of that clock (hours)', -12.0, 14.0, 0.0, 0.25)
+    st.session_state['c_last_tz'] = tzname if (tzname and not override) else f'UTC{tz:+.2f}'   # for the Now button
     st.subheader('Options (Lilly)')
     beams = st.radio('Sun-beams rule', ['As in Lilly\'s table (p.113, p.115)', 'As in Lilly\'s worked example (pp.178-180)'],
                      index=0, help='Lilly\'s table counts a planet within 17° of the Sun as "under the Sun-beams" (-4). '

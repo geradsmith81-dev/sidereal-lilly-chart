@@ -1,5 +1,8 @@
 """Shared sidebar inputs: place search (GeoNames) or manual coordinates, and elevation.
 The last place query is remembered across the two pages."""
+import datetime as dt
+from zoneinfo import ZoneInfo
+
 import streamlit as st
 import places
 import user_profile
@@ -8,6 +11,28 @@ import user_profile
 @st.cache_data(show_spinner=False, max_entries=64, ttl=3600)
 def find_places(q):
     return places.search(q, n=12)
+
+
+def start_timezone():
+    """IANA time zone for the moment the Chart page opens at: the home place's (profile), else the device's
+    (browser), else London."""
+    home = user_profile.get().get('home')
+    if home and home.get('tz'):
+        return home['tz']
+    try:
+        tz = st.context.timezone
+        if tz:
+            ZoneInfo(tz)
+            return tz
+    except Exception:
+        pass
+    return 'Europe/London'
+
+
+def now_local(tzkey):
+    """The present moment as a local clock time (naive datetime, whole minutes) in an IANA zone or 'UTC+h.hh'."""
+    z = dt.timezone(dt.timedelta(hours=float(tzkey[3:]))) if tzkey.startswith('UTC') else ZoneInfo(tzkey)
+    return dt.datetime.now(z).replace(second=0, microsecond=0, tzinfo=None)
 
 
 def default_place():
