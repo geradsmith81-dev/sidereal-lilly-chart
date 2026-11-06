@@ -135,6 +135,12 @@ LATER CHANGES (when you get new zips from me)
 3. Drag in ALL 26 items again, exactly as in Part C. Files with the same
    name are replaced; the others are left alone. Click "Commit changes".
 4. Streamlit notices the change and updates the app within a minute or two.
+5. To be sure the app uses all the new files, restart it once: open the
+   app's web address while signed in to Streamlit, click "Manage app" at the
+   bottom right (on a phone: the small red button with a white crown), then
+   the three dots > "Reboot app". It is back within about a minute.
+   If the app ever says "The app's files are out of step", or shows an
+   error after an update, do steps 3 and 5 again.
 
 
 IF THE COLOURS ARE WRONG (bright pinkish-red buttons, white input boxes)

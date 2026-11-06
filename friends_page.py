@@ -126,6 +126,8 @@ with st.container(border=True):
     with c1:
         kind = st.radio('Undertaking', list(el.UNDERTAKINGS), index=1, format_func=lambda k: el.UNDERTAKINGS[k]['label'],
                         key='fr_kind')
+        if el.UNDERTAKINGS[kind].get('note'):
+            st.info(el.UNDERTAKINGS[kind]['note'], icon=':material/favorite:' if kind == 'romance' else ':material/group:')
         today = dt.date.today()
         y_, m_, d_ = st.columns([1.3, 1.4, 1])
         year = y_.number_input('Year', 1850, 2149, min(max(today.year, 1850), 2149), 1, key='fr_year')

@@ -16,8 +16,9 @@ generated in code (`assets/background.jpg`). Text contrast is at least 4.5:1 thr
 * **Chart**: the chart for one moment, with Lilly's dignities, scores, aspects and Forecast. The button *What does
   this mean? (plain English)* opens a window that restates the Forecast without technical terms and grades the moment
   for the four undertakings of the Auspicious dates page, against every hour of the same week.
-* **Auspicious dates**: an elections calendar for beginning a romantic relationship (7th house, Venus), a friendship
-  (11th, Jupiter), a life transition (4th, the Moon) or a project (10th, Mercury). It is framed from Lilly's
+* **Auspicious dates**: an elections calendar for Romance (7th house, Venus: a new romance, or good times to connect
+  with a partner), Friendship (11th, Jupiter: new connections, or good times with friends), a life transition (4th, the
+  Moon) or a project (10th, Mercury). It is framed from Lilly's
   perfection (ch. XXI), strength (p.115) and Considerations before Judgment (pp.121-123). Rules and weights are in
   `data/election_rules.csv`. It exports .ics and .csv.
 

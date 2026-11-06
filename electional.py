@@ -30,10 +30,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RULES = os.path.join(HERE, 'data', 'election_rules.csv')
 
 UNDERTAKINGS = {
-    'romance': dict(label='Begin a romantic relationship', house=7, natural='Venus',
+    'romance': dict(label='Romance', house=7, natural='Venus',
+                    note="Romance can be interpreted as beginning a new romance or finding the optimal times to connect with your current partner.",
                     why="Lilly: the 7th house 'giveth judgement of Marriage ... all manner of Love questions ... Wives, "
                         "Sweet-harts' (p.54). Venus, 'oft entangled in Love-matters' (p.73), is the natural significator."),
-    'friendship': dict(label='Begin a friendship', house=11, natural='Jupiter',
+    'friendship': dict(label='Friendship', house=11, natural='Jupiter',
+                       note="Friendship can be interpreted as finding new connections or finding the optimal times to connect with your current friends.",
                        why="Lilly: the 11th house 'doth naturally represent Friends and Friendship, Hope, Trust, Confidence' "
                            "(p.56). Jupiter 'doth especially rejoyce in this House' (p.56) and is taken as natural significator."),
     'transition': dict(label='Make a life transition (move, new chapter)', house=4, natural='Moon',

@@ -66,6 +66,8 @@ with device.input_panel('What to begin, when and where', expanded='e_result' not
 
 U = el.UNDERTAKINGS[kind]
 st.caption(f"{U['label']} · {place} · {start:%d %b %Y} for {days} days, {h0:02d}:00–{h1:02d}:00 local, every {step} min")
+if U.get('note'):                  # how the undertaking may be read (user's wording), for Romance and Friendship
+    st.info(U['note'], icon=':material/favorite:' if kind == 'romance' else ':material/group:')
 with st.container(border=True):
     st.markdown(f"**How this undertaking is judged.** {U['why']} The moment is judged for the Lord of the Ascendant "
                 f"(the person who begins), the lord of the {ll._ord(U['house'])} house (the matter), {U['natural']} and the Moon.")
