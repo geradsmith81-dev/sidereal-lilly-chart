@@ -61,6 +61,20 @@ def search(query, n=12):
     return [r for _, _, r in scored[:n]]
 
 
+_BIGGEST = {}
+
+
+def largest_in_tz(tzname):
+    """The most populous gazetteer place in an IANA time zone (e.g. 'America/Chicago' -> Chicago), or None.
+    Used only to guess a starting place from the device's time zone when no home place is set."""
+    if not _BIGGEST:
+        for r in PLACES:
+            b = _BIGGEST.get(r['tz'])
+            if b is None or r['pop'] > b['pop']:
+                _BIGGEST[r['tz']] = r
+    return _BIGGEST.get(tzname)
+
+
 def label(r):
     return f"{r['name']}, {r['country']}  ({r['lat']:.3f}°, {r['lon']:.3f}°; pop. {r['pop']:,})"
 

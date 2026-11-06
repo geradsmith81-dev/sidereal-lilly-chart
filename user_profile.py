@@ -63,11 +63,11 @@ def _read_disk():
     if os.path.exists(p):
         with open(p, 'rb') as f:
             av = f.read()
-    return dict(name=d.get('name', ''), avatar=av, birth=_valid_birth(d.get('birth')))
+    return dict(name=d.get('name', ''), avatar=av, birth=_valid_birth(d.get('birth')), home=_valid_home(d.get('home')))
 
 
 def _write_disk(prof):
-    _write_json('profile.json', {'name': prof['name'], 'birth': prof.get('birth')})
+    _write_json('profile.json', {'name': prof['name'], 'birth': prof.get('birth'), 'home': prof.get('home')})
     p = os.path.join(DIR, 'avatar.png')
     if prof['avatar']:
         with open(p + '.tmp', 'wb') as f:
@@ -82,12 +82,18 @@ def get():
     if KEY not in st.session_state:
         st.session_state[KEY] = _read_disk() if LOCAL else dict(name='', avatar=None, birth=None)
     st.session_state[KEY].setdefault('birth', None)
+    st.session_state[KEY].setdefault('home', None)
     return st.session_state[KEY]
 
 
-def save(name, avatar, birth):
-    prof = dict(name=clean_name(name), avatar=avatar, birth=_valid_birth(birth))
+def save(name, avatar, birth, home=None):
+    old_home = get().get('home')
+    prof = dict(name=clean_name(name), avatar=avatar, birth=_valid_birth(birth), home=_valid_home(home))
     st.session_state[KEY] = prof
+    if prof['home'] != old_home:
+        # start the place search of every page again from the new home place
+        for k in ['_place_q'] + [f'{pre}_{w}' for pre in ('c', 'e', 'f') for w in ('q', 'pick')]:
+            st.session_state.pop(k, None)
     if LOCAL:
         _write_disk(prof)
 
@@ -151,6 +157,21 @@ def _valid_birth(b):
         return dict(date=d.isoformat(), time=t.strftime('%H:%M'), time_known=bool(b.get('time_known', True)),
                     place=clean_name(b.get('place', ''))[:MAX_NAME] or f'{lat:.2f}, {lon:.2f}',
                     lat=round(lat, 5), lon=round(lon, 5), tz=tz, utc_offset=off)
+    except (KeyError, ValueError, TypeError):
+        return None
+
+
+def _valid_home(h):
+    """The place where the user lives (the starting place on the Chart and Auspicious dates pages), or None.
+    Fields: name, country, lat, lon, tz. It is kept in the profile only - never in a friend card."""
+    if not isinstance(h, dict):
+        return None
+    try:
+        lat, lon = float(h['lat']), float(h['lon'])
+        if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+            return None
+        return dict(name=clean_name(h['name'])[:MAX_NAME], country=clean_name(h.get('country', ''))[:MAX_NAME],
+                    lat=round(lat, 5), lon=round(lon, 5), tz=str(h['tz'])[:64] if h.get('tz') else None)
     except (KeyError, ValueError, TypeError):
         return None
 
@@ -350,12 +371,28 @@ def edit_dialog():
             st.caption(f"{birth_text(birth)} · {h['lat']:.3f}°, {h['lon']:.3f}° · UTC{off:+.2f}")
         elif b0 and not q:
             birth = p['birth']
+    st.markdown('**Where you live** (the starting place on the Chart and Auspicious dates pages)')
+    h0 = p.get('home') or {}
+    hq = st.text_input('Your town or city', h0.get('name', ''), key='pf_home',
+                       placeholder='e.g. Mortlake, Kraków, Chicago')
+    home = None
+    hhits = places.search(hq, n=10) if hq else []
+    if hq and not hhits:
+        st.warning('No match in the gazetteer (places with at least 1,000 inhabitants). Try a nearby town.')
+    if hhits:
+        same_h = [k for k, hh in enumerate(hhits) if h0 and abs(hh['lat'] - h0['lat']) < 1e-3 and abs(hh['lon'] - h0['lon']) < 1e-3]
+        j = st.selectbox('Matches', range(len(hhits)), index=same_h[0] if same_h else 0,
+                         format_func=lambda k: places.label(hhits[k]), key='pf_home_pick')
+        hh = hhits[j]
+        home = _valid_home(dict(name=hh['name'], country=hh['country'], lat=hh['lat'], lon=hh['lon'], tz=hh['tz']))
+        st.caption(f"{hh['name']}, {hh['country']} · {hh['lat']:.3f}°, {hh['lon']:.3f}° · time zone {hh['tz']}. "
+                   'Not included in your friend card.')
     st.caption('On this computer your profile is saved in the app\'s "profile" folder and never leaves it.'
                if LOCAL else
                'Online, your profile is kept only while this browser tab is open; nothing is stored on the server.')
     c1, c2 = st.columns(2)
     if c1.button('Save', type='primary', width='stretch', disabled=bool(err)):
-        save(name, show, birth if has_birth else None)
+        save(name, show, birth if has_birth else None, home)
         st.rerun()
     if c2.button('Cancel', width='stretch'):
         st.rerun()

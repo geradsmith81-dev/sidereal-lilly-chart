@@ -13,8 +13,7 @@ matplotlib.use('Agg')
 
 import user_profile
 
-st.set_page_config(page_title=user_profile.personal("Sidereal Oracle · William Lilly's reading",
-                                                   "{who} Sidereal Oracle · William Lilly's reading"), layout='wide',
+st.set_page_config(page_title='The Sidereal Oracle', layout='wide',
                    # the app icon (an astrolabe): browser tab, the app window's title bar and taskbar button
                    page_icon=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'lilly_icon.png'))
 try:

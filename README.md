@@ -31,7 +31,7 @@ are validated, and pictures are re-encoded.
 
 ## Profile
 
-A profile box in the sidebar takes a name, a picture and birth details, and personalises the page titles ("Gerad's Sidereal Oracle").
+A profile box in the sidebar takes a name, a picture and birth details, and a home town, and personalises the page titles ("Gerad's auspicious dates"; the home page is "The Sidereal Oracle"). The home town is the starting place of the Chart and Auspicious dates pages; without it, the most populous gazetteer place in the browser's time zone (`st.context.timezone`) is used, and the page says so. The home town is never written into friend cards.
 In this online version the profile is kept **only in the visitor's browser session**. Nothing is written to the server,
 which all visitors share. The desktop version (started with `Start app.bat`, which sets `LILLY_LOCAL_PROFILE=1`)
 saves it in a local `profile/` folder instead.

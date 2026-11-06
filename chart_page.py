@@ -38,7 +38,7 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
     return rows, bands, cusps, R, ph, fc, asc, mc, stars
 
 
-user_profile.title("Sidereal Oracle · William Lilly's reading", "{who} Sidereal Oracle · William Lilly's reading")
+user_profile.title('The Sidereal Oracle', 'The Sidereal Oracle')      # home page title (user request)
 PHONE = device.phone()
 
 # ---------------- inputs (same as the first app; a fold-out panel at the top on a phone) ----------------
@@ -57,7 +57,7 @@ with device.input_panel('Chart input: date, time and place'):
     day = dc.number_input('Day', min_value=1, max_value=ndays, step=1, key='day_value',
                           value=None if 'day_value' in st.session_state else min(today.day, ndays))
     d = dt.date(int(year), int(month), int(day))
-    tm = st.time_input('Local clock time', dt.time(12, 0), step=60)
+    tm = st.time_input('Local clock time (24-hour clock)', dt.time(12, 0), step=60)
     place, lat, lon, tzname, elev = inputs.place_picker('c')
     local_naive = dt.datetime.combine(d, tm)
     override = False
