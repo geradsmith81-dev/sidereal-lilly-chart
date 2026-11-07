@@ -90,7 +90,10 @@ for fr in friends:
         upf.remove_friend(fr['id'])
         st.rerun()
 st.caption('Saved on this computer in the app\'s "profile" folder.' if upf.LOCAL else
-           'Online, friends are kept only while this browser tab is open. Keep their card files to add them again.')
+           ('Remembered on this device (with your profile). Keep their card files to add them on other devices.'
+            if getattr(upf, 'remembered', lambda: False)() else
+            'Online, friends are kept only while the app is open, unless you tick "Remember me on this device" in '
+            'your profile. Keep their card files to add them again.'))
 
 # ---------------------------------------------------------------- 4. compare
 st.subheader('4 · Compare and combine')

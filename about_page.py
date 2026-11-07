@@ -124,7 +124,9 @@ st.subheader('Your information')
 st.markdown("Your name, picture, birth details and friends are " +
             ("saved only on this computer, in the app's **profile** folder. Nothing is sent anywhere."
              if user_profile.LOCAL else
-             "kept only while this browser tab is open. Nothing is saved on the server.") +
+             "kept only while the app is open, unless you tick **Remember me on this device** in your profile: "
+             "then they are also kept in this browser's own storage on your phone or computer, and nowhere else. "
+             "**Forget me on this device** (in the sidebar) deletes that copy. Nothing is saved on the server.") +
             " A friend card holds your name, birth details and (if you choose) picture: send it only to people you want "
             "to have them.")
 

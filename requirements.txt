@@ -2,7 +2,7 @@ skyfield>=1.54
 numpy>=2.0
 pandas>=2.2
 matplotlib>=3.9
-streamlit>=1.50
+streamlit>=1.52
 geonamescache>=3.0
 tzdata
 pillow>=10

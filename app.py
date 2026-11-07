@@ -67,6 +67,8 @@ import theme
 import device
 
 st.markdown(theme.css(os.path.join(HERE, 'assets', 'background.jpg'), phone=device.phone()), unsafe_allow_html=True)
+# online: "Remember me on this device" - read the profile kept in this browser (once), save it when it changes
+getattr(user_profile, 'device_sync', lambda: None)()
 pg = st.navigation([st.Page(os.path.join(HERE, 'chart_page.py'), title='Chart', icon=':material/brightness_7:', default=True),
                     st.Page(os.path.join(HERE, 'elections_page.py'), title='Auspicious dates', icon=':material/calendar_month:'),
                     st.Page(os.path.join(HERE, 'friends_page.py'), title='Friends', icon=':material/group:'),

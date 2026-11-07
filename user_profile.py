@@ -3,8 +3,10 @@
 Where it is kept
   * Desktop app (started with "Start app.bat", which sets LILLY_LOCAL_PROFILE=1): in the folder profile/ inside the
     app (profile.json, avatar.png, friends.json), so it is there next time. It never leaves the computer.
-  * Online (Streamlit Community Cloud) or any other start: only for the current browser session. The server's disk
-    is shared by every visitor, so nothing is written there.
+  * Online (Streamlit Community Cloud) or any other start: for the current browser session only, unless the visitor
+    ticks "Remember me on this device". Then the profile and friends are also kept in that browser's own storage
+    (localStorage, on the visitor's phone or computer) and filled in again next time. Nothing is ever written to the
+    server's disk, which every visitor shares. "Forget me on this device" deletes the stored copy.
 
 Friend cards
   A friend card is a small JSON file (.lillycard) or a copy-paste text code ("LILLY1:..."), holding a name, the birth
@@ -13,6 +15,7 @@ Friend cards
 """
 import base64
 import calendar
+import hashlib
 import datetime as dt
 import html
 import io
@@ -91,11 +94,15 @@ def save(name, avatar, birth, home=None):
     prof = dict(name=clean_name(name), avatar=avatar, birth=_valid_birth(birth), home=_valid_home(home))
     st.session_state[KEY] = prof
     if prof['home'] != old_home:
-        # start the place search of every page again from the new home place
-        for k in ['_place_q'] + [f'{pre}_{w}' for pre in ('c', 'e', 'f') for w in ('q', 'pick')]:
-            st.session_state.pop(k, None)
+        _reset_place_search()
     if LOCAL:
         _write_disk(prof)
+
+
+def _reset_place_search():
+    """Start the place search of every page again from the (new) home place."""
+    for k in ['_place_q'] + [f'{pre}_{w}' for pre in ('c', 'e', 'f') for w in ('q', 'pick')]:
+        st.session_state.pop(k, None)
 
 
 def friends():
@@ -132,6 +139,188 @@ def add_friend(f):
 def remove_friend(fid):
     st.session_state[FKEY] = [x for x in friends() if x['id'] != fid]
     _store_friends()
+
+
+# ---------------------------------------------------------------- "Remember me on this device" (online only)
+# The browser's own storage (localStorage) on the visitor's phone or computer holds one JSON text: the profile and the
+# friends, pictures as small JPEGs. A tiny component (st.components.v2: JavaScript running in the visitor's browser)
+# reads it once per session and writes it whenever the profile or the friends change. The server keeps nothing.
+DEVICE_FORMAT = 'sidereal-oracle-device'
+DEVICE_MAX_CHARS = 4_000_000          # browsers allow about 5 MB per site
+REMEMBER = '_dev_remember'            # True: keep this browser's stored copy up to date
+_STORE_JS = """
+export default function (component) {
+  const { data, setStateValue } = component;
+  const KEY = "sidereal-oracle-profile-v1";
+  const g = (window.__siderealOracleStore = window.__siderealOracleStore || {});
+  const d = data || {};
+  let ls = null;
+  try { ls = window.localStorage; ls.setItem("__so_test", "1"); ls.removeItem("__so_test"); } catch (e) { ls = null; }
+  if (d.op === "load") {
+    if (g.loadedFor === d.sid) { return; }
+    g.loadedFor = d.sid;
+    let v = null;
+    try { v = ls ? ls.getItem(KEY) : null; } catch (e) { v = null; }
+    setStateValue("stored", JSON.stringify({ sid: d.sid, ok: !!ls, value: v }));
+  } else if (d.op === "save" || d.op === "forget") {
+    let ok = true;
+    if (g.lastNonce !== d.nonce) {
+      try { if (d.op === "save") { ls.setItem(KEY, d.payload); } else { ls.removeItem(KEY); } }
+      catch (e) { ok = false; }
+      g.lastNonce = d.nonce;
+      g.lastOk = ok;
+    } else {
+      ok = g.lastOk;
+    }
+    setStateValue("saved", JSON.stringify({ nonce: d.nonce, ok: ok }));
+  }
+}
+"""
+_store = None
+try:
+    if not LOCAL:
+        _store = st.components.v2.component('sidereal_oracle_device_store', js=_STORE_JS, isolate_styles=False)
+except Exception:                     # an older Streamlit without st.components.v2: the feature is simply not offered
+    _store = None
+
+_jpeg_cache = {}
+
+
+def _jpeg_b64(png):
+    """Profile picture (PNG bytes) -> small JPEG as base64 text, for the browser's storage."""
+    if not png:
+        return None
+    h = hashlib.sha1(png).hexdigest()
+    if h not in _jpeg_cache:
+        im = Image.open(io.BytesIO(png)).convert('RGB')
+        out = io.BytesIO()
+        im.save(out, format='JPEG', quality=85, optimize=True)
+        if len(_jpeg_cache) > 200:
+            _jpeg_cache.clear()
+        _jpeg_cache[h] = base64.b64encode(out.getvalue()).decode()
+    return _jpeg_cache[h]
+
+
+def _picture_from_store(b64):
+    try:
+        return to_avatar(base64.b64decode(b64)) if b64 else None
+    except Exception:
+        return None                   # a damaged picture is dropped; the rest is still used
+
+
+def device_payload():
+    """The text kept in the browser: profile (with the home place) and friends."""
+    p = get()
+    return json.dumps({'format': DEVICE_FORMAT, 'version': 1,
+                       'profile': {'name': p['name'], 'birth': p['birth'], 'home': p.get('home'),
+                                   'picture_jpeg_base64': _jpeg_b64(p['avatar'])},
+                       'friends': [{'id': f['id'], 'name': f['name'], 'birth': f['birth'],
+                                    'picture_jpeg_base64': _jpeg_b64(f['avatar'])} for f in friends()]},
+                      ensure_ascii=False, separators=(',', ':'))
+
+
+def parse_device(text):
+    """Text from the browser's storage -> (profile dict, friends list), or None if it is not usable."""
+    try:
+        if not text or len(text) > DEVICE_MAX_CHARS:
+            return None
+        d = json.loads(text)
+        if not isinstance(d, dict) or d.get('format') != DEVICE_FORMAT:
+            return None
+        p = d.get('profile') or {}
+        prof = dict(name=clean_name(p.get('name')), avatar=_picture_from_store(p.get('picture_jpeg_base64')),
+                    birth=_valid_birth(p.get('birth')), home=_valid_home(p.get('home')))
+        fl = []
+        for x in (d.get('friends') or [])[:200]:
+            try:
+                b, n = _valid_birth(x.get('birth')), clean_name(x.get('name'))
+                if b and n:
+                    fid = re.sub(r'[^0-9a-zA-Z]', '', str(x.get('id') or ''))[:24] or uuid.uuid4().hex[:12]
+                    fl.append(dict(id=fid, name=n, birth=b, avatar=_picture_from_store(x.get('picture_jpeg_base64'))))
+            except Exception:
+                continue
+        return prof, fl
+    except Exception:
+        return None
+
+
+def device_available():
+    """True when "Remember me on this device" can be offered (online, and the browser allows storage)."""
+    ss = st.session_state
+    return _store is not None and bool(ss.get('_dev_loaded')) and bool(ss.get('_dev_ok'))
+
+
+def remembered():
+    return bool(st.session_state.get(REMEMBER))
+
+
+def set_remember(on):
+    """Tick or untick "Remember me on this device". Unticking deletes the browser's stored copy."""
+    ss = st.session_state
+    if on and not ss.get(REMEMBER):
+        ss[REMEMBER] = True
+        ss.pop('_dev_sent', None)                        # write the current profile at the next run
+    elif not on and ss.get(REMEMBER):
+        ss[REMEMBER] = False
+        ss['_dev_forget'] = uuid.uuid4().hex[:12]        # delete the stored copy at the next run
+
+
+def _apply_loaded(prof, fl):
+    ss = st.session_state
+    cur = get()
+    if cur['name'] or cur['avatar'] or cur['birth'] or friends():
+        return                                           # the visitor already typed something: keep that
+    ss[KEY], ss[FKEY] = prof, fl
+    if prof.get('home'):
+        _reset_place_search()
+        if ss.get('c_now_tz') != prof['home'].get('tz'):
+            ss.pop('c_time', None)                       # the Chart page opens again at "now" in the home time zone
+
+
+def device_sync():
+    """Run once at the top of every run (online only): read the browser's stored copy once per session, and write
+    it again whenever the profile or friends have changed. Mounted inside a hidden container."""
+    if _store is None:
+        return
+    ss = st.session_state
+    sid = ss.setdefault('_dev_sid', uuid.uuid4().hex)
+    if not ss.get('_dev_loaded'):
+        cmd = {'op': 'load', 'sid': sid}
+    elif ss.get('_dev_forget'):
+        cmd = {'op': 'forget', 'nonce': ss['_dev_forget']}
+    elif ss.get(REMEMBER):
+        text = device_payload()
+        nonce = hashlib.sha1(text.encode('utf-8')).hexdigest()[:16]
+        cmd = {'op': 'idle'} if ss.get('_dev_sent') == nonce else {'op': 'save', 'nonce': nonce, 'payload': text}
+    else:
+        cmd = {'op': 'idle'}
+    with st.container(key='sidereal_device_box'):
+        st.markdown('<style>.st-key-sidereal_device_box{display:none !important;}</style>', unsafe_allow_html=True)
+        try:
+            res = _store(key='sidereal_device_store', data=cmd,
+                         on_stored_change=lambda: None, on_saved_change=lambda: None)
+        except Exception:
+            return
+    try:
+        stored = json.loads(res.get('stored') or 'null') if hasattr(res, 'get') else json.loads(getattr(res, 'stored', None) or 'null')
+        saved = json.loads(res.get('saved') or 'null') if hasattr(res, 'get') else json.loads(getattr(res, 'saved', None) or 'null')
+    except Exception:
+        stored = saved = None
+    if not ss.get('_dev_loaded') and isinstance(stored, dict) and stored.get('sid') == sid:
+        ss['_dev_loaded'] = True
+        ss['_dev_ok'] = bool(stored.get('ok'))
+        got = parse_device(stored.get('value'))
+        if got:
+            ss[REMEMBER] = True
+            _apply_loaded(*got)
+            ss['_dev_sent'] = hashlib.sha1(device_payload().encode('utf-8')).hexdigest()[:16]
+    if isinstance(saved, dict) and saved.get('nonce') == cmd.get('nonce'):
+        if cmd['op'] == 'forget':
+            ss.pop('_dev_forget', None)
+            ss.pop('_dev_sent', None)
+        else:
+            ss['_dev_sent'] = cmd['nonce']
+            ss['_dev_save_failed'] = not saved.get('ok', True)
 
 
 # ---------------------------------------------------------------- validation and helpers
@@ -387,12 +576,24 @@ def edit_dialog():
         home = _valid_home(dict(name=hh['name'], country=hh['country'], lat=hh['lat'], lon=hh['lon'], tz=hh['tz']))
         st.caption(f"{hh['name']}, {hh['country']} · {hh['lat']:.3f}°, {hh['lon']:.3f}° · time zone {hh['tz']}. "
                    'Not included in your friend card.')
-    st.caption('On this computer your profile is saved in the app\'s "profile" folder and never leaves it.'
-               if LOCAL else
-               'Online, your profile is kept only while this browser tab is open; nothing is stored on the server.')
+    remember = None
+    if LOCAL:
+        st.caption('On this computer your profile is saved in the app\'s "profile" folder and never leaves it.')
+    elif device_available():
+        remember = st.checkbox('Remember me on this device', value=remembered(), key='pf_remember',
+                               help='Keeps your profile and friends in this browser, on this phone, tablet or computer '
+                                    'only, so they are here next time you open the app. Nothing is stored on the server.')
+        st.caption('Ticked: your profile and friends are kept in this browser on this device, and nowhere else. '
+                   'Do not tick it on a shared or borrowed device. Not ticked: they are kept only while the app is open.')
+    else:
+        st.caption('Online, your profile is kept only while the app is open; nothing is stored on the server.'
+                   + (' This browser does not allow the app to remember you (private browsing?).'
+                      if _store is not None and st.session_state.get('_dev_loaded') else ''))
     c1, c2 = st.columns(2)
     if c1.button('Save', type='primary', width='stretch', disabled=bool(err)):
         save(name, show, birth if has_birth else None, home)
+        if remember is not None:
+            set_remember(remember)
         st.rerun()
     if c2.button('Cancel', width='stretch'):
         st.rerun()
@@ -423,6 +624,25 @@ def sidebar_card():
                                     'Friends page. To leave your picture out, or to copy a text code, use the Friends page.')
         elif p['name'] or p['avatar']:
             st.caption('To make your friend card, add your birth date, time and place: click Edit profile.')
+        if not LOCAL and device_available():
+            if remembered():
+                st.caption(':material/smartphone: Remembered on this device.'
+                           + (' **Could not save the latest changes: the browser\'s storage is full.**'
+                              if st.session_state.get('_dev_save_failed') else ''))
+                if st.button('Forget me on this device', key='forget_btn', icon=':material/delete:', width='stretch',
+                             help='Deletes your profile and friends from this browser\'s storage. They stay on the '
+                                  'screen until you close the app.'):
+                    set_remember(False)
+                    st.toast('This device will no longer remember you.')
+                    st.rerun()
+            elif p['name'] or p['avatar'] or p['birth'] or friends():
+                if st.button('Remember me on this device', key='remember_btn', icon=':material/smartphone:',
+                             width='stretch',
+                             help='Keeps your profile and friends in this browser on this device, so they are here '
+                                  'next time. Nothing is stored on the server. Not for shared or borrowed devices.'):
+                    set_remember(True)
+                    st.toast('This device will remember you.')
+                    st.rerun()
         st.divider()
 
 
