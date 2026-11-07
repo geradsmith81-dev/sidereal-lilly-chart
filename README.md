@@ -48,6 +48,24 @@ portrait background
 (`assets/background_phone.jpg`). The sidebar switch **Phone layout** overrides the detection. Desktop rendering is
 unchanged.
 
+## Simple and Full views, explanations, the sky, QR codes
+
+- **Simple / Full view** (sidebar switch, Chart page): Simple shows the chart, *The sky at this moment* and the forecast
+  in plain words; Full adds Lilly's tables of points, the planets in his words, the aspects and the sources. It starts in
+  Simple view on a phone and Full view on a computer.
+- **Tap-to-explain**: small buttons marked with an "i" open a short definition of a term (`glossary.py`), with the page
+  of *Christian Astrology* linked to the scan on the Internet Archive (printed page N = viewer page n(N+34)).
+  The About page lists every term.
+- **The sky at this moment**: the Moon's phase and light (Lilly's +2/-2), the planets retrograde, the Moon's next
+  aspect or *void of course*, and when she leaves her constellation (`forecast.sky`).
+- **Show the working**: in the plain-English window, every statement shows Lilly's rule, its page and how it counted;
+  every undertaking shows its points and the week's thresholds.
+- **Friend card QR code** (Friends page): `qr_code.py`, a dependency-free QR encoder (byte mode, level M), checked
+  module-for-module against an independent encoder. The code opens `APP_URL?card=LILLY1:...` (`user_profile.APP_URL`);
+  the app then offers to add the friend.
+- **Tone**: the plain-English texts (column `plain` of the rule tables) are worded as cautions rather than verdicts;
+  Lilly's own words are kept in the `text` column.
+
 ## About page
 
 A fourth page explains the app in plain English. It shows Lilly's engraved portrait and the 1647 title page if

@@ -22,6 +22,7 @@ import io
 import json
 import os
 import re
+import urllib.parse
 import uuid
 import zlib
 
@@ -40,6 +41,9 @@ AVATAR_PX = 256
 KEY, FKEY = 'profile', 'friends'
 CARD_FORMAT = 'lilly-friend-card'
 CODE_PREFIX = 'LILLY1:'
+# the online app: a friend card's QR code opens this address with ?card=LILLY1:... (also from the desktop app,
+# so that a friend's phone can open it). Change it here if the app moves.
+APP_URL = 'https://sidereal-lilly-chart-8aevvdj4xjfdczxjz7swbt.streamlit.app/'
 
 
 # ---------------------------------------------------------------- storage
@@ -268,9 +272,12 @@ def set_remember(on):
 def _apply_loaded(prof, fl):
     ss = st.session_state
     cur = get()
-    if cur['name'] or cur['avatar'] or cur['birth'] or friends():
-        return                                           # the visitor already typed something: keep that
-    ss[KEY], ss[FKEY] = prof, fl
+    # friends added before the stored copy arrived (e.g. from a scanned QR code) are kept, added to the stored ones
+    extra = [f for f in friends() if not any(f['name'] == g['name'] and f['birth'] == g['birth'] for g in fl)]
+    ss[FKEY] = fl + extra
+    if cur['name'] or cur['avatar'] or cur['birth']:
+        return                                           # the visitor already typed a profile: keep that
+    ss[KEY] = prof
     if prof.get('home'):
         _reset_place_search()
         if ss.get('c_now_tz') != prof['home'].get('tz'):
@@ -454,6 +461,59 @@ def card_code():
     """Short text code without the picture: LILLY1:<base64url(zlib(json))>."""
     raw = json.dumps(make_card(False), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
     return CODE_PREFIX + base64.urlsafe_b64encode(zlib.compress(raw, 9)).decode().rstrip('=')
+
+
+def card_link():
+    """The address a friend card's QR code opens: the online app with the card's text code."""
+    return APP_URL + '?card=' + urllib.parse.quote(card_code(), safe=':')
+
+
+def card_qr_png():
+    """PNG of the QR code for card_link() (name and birth details, no picture)."""
+    import qr_code
+    return qr_code.png(card_link(), scale=6)
+
+
+@st.dialog('Add a friend')
+def _incoming_dialog(f):
+    st.markdown(f'<div style="display:flex;align-items:center;gap:12px;">{person_avatar(f, 48) or ""}'
+                f'<div><b>{html.escape(f["name"])}</b><br><span style="color:#c4ccdb;font-size:0.85rem;">'
+                f'{html.escape(birth_text(f["birth"]))}</span></div></div>', unsafe_allow_html=True)
+    st.write('')
+    if any(x['name'] == f['name'] and x['birth'] == f['birth'] for x in friends()):
+        st.info(f"{f['name']} is already among your friends.")
+        if st.button('Close', width='stretch'):
+            st.rerun()
+        return
+    st.markdown(f"**{html.escape(f['name'])}** shared their friend card with you. Add them to your friends? "
+                'You can then compare your charts on the Friends page.')
+    a, b = st.columns(2)
+    if a.button(f"Add {f['name']}", type='primary', width='stretch', key='qr_add'):
+        add_friend(f)
+        st.toast(f"{f['name']} added to your friends.")
+        st.rerun()
+    if b.button('No, thank you', width='stretch', key='qr_no'):
+        st.rerun()
+
+
+def incoming_card():
+    """Called from app.py: if the page was opened from a friend card's QR code (?card=...), offer to add it."""
+    try:
+        code = st.query_params.get('card')
+    except Exception:
+        return
+    if not code:
+        return
+    try:
+        del st.query_params['card']                      # once only; the address bar goes back to the plain address
+    except Exception:
+        pass
+    try:
+        f = parse_card(code)
+    except ValueError as e:
+        st.toast(f'That friend card could not be read. {e}')
+        return
+    _incoming_dialog(f)
 
 
 def parse_card(data):

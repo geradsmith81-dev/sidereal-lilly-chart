@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 import streamlit as st
 
 import electional as el
+import glossary
 import lilly_layer as ll
 import theme
 import user_profile
@@ -25,37 +26,13 @@ GRADE_MEANING = {
     'best': 'This moment is one of the best tenth of hours this week.',
     'good': 'This moment is better than most hours this week.',
     'fair': 'This is an ordinary hour: no warning, but nothing special.',
-    'avoid': "One of Lilly's warnings applies at this moment, so he would not begin it now.",
+    'avoid': "Lilly would wait: one of his cautions applies at this moment. The best time this week is shown below.",
 }
 # Lilly's "Considerations before Judgment" (pp.121-123): signs that the chart may not be safe to read at all.
 CAUTIONS = {'not_radical', 'asc_early', 'asc_late', 'asc_ophiuchus', 'moon_via_combusta', 'moon_late',
             'saturn_7', 'lord_7_afflicted', 'testimonies_equal'}
-GLOSSARY = [
-    ('Rising sign (Ascendant)', 'The constellation coming up over the eastern horizon at this moment. '
-                                'Lilly takes it to stand for the person: you, or whoever asks the question.'),
-    ('Lord of the Ascendant', 'The planet that rules the rising sign. In this window it is called "the planet that '
-                              'stands for you".'),
-    ('Planetary day and hour', 'Each day and each of its 24 unequal hours (12 from sunrise to sunset, 12 from sunset '
-                               'to sunrise) belongs to one of the seven planets, in a fixed order.'),
-    ('Radical', "Lilly's first test of whether a chart is fit to be read: the planet of the hour and the planet that "
-                'stands for you must agree (be the same planet, share a triplicity, or share a nature).'),
-    ('Fortitudes and debilities', "Lilly's points for and against each planet (his table on p.115). The net score is "
-                                  'fortitudes minus debilities.'),
-    ('Houses', 'Twelve divisions of the sky, each standing for a part of life: the 7th for partners and love, the '
-               '11th for friends and hopes, the 4th for home and endings, the 10th for work and reputation. The four '
-               '"angles" (1st, 4th, 7th, 10th) are the strongest places; the "cadent" ones (3rd, 6th, 9th, 12th) the weakest.'),
-    ('Helpful and harmful planets', 'Jupiter and Venus are the "fortunes" (helpful); Saturn and Mars the "infortunes" '
-                                    '(harmful).'),
-    ('Aspects', 'Set angles between two planets. Sextile (60°) and trine (120°) are friendly; square (90°) and '
-                'opposition (180°) are hard; a conjunction (0°) is a meeting. "Applying" means the angle is about to be exact.'),
-    ('Combust and cazimi', 'A planet within 8½° of the Sun is "combust", lost in its glare and badly weakened. '
-                           'Within 17 arc-minutes of the Sun\'s centre it is "cazimi", and strengthened instead.'),
-    ('Void of course', 'The Moon makes no further aspect before she leaves the constellation she is in.'),
-    ('Via Combusta', 'The "burnt road", the second half of Libra and the first half of Scorpio, which Lilly thought '
-                     'unlucky for the Moon.'),
-    ('Mutual reception', 'Two planets each standing in a sign the other rules: a sign of cooperation.'),
-    ('Part of Fortune', 'A calculated point (Ascendant + Moon − Sun) standing for wealth and well-being.'),
-]
+GLOSSARY_KEYS = ['ascendant', 'lord_asc', 'hours', 'radical', 'considerations', 'fortitudes', 'houses', 'angles',
+                 'fortunes', 'aspects', 'applying', 'combust', 'cazimi', 'void', 'via_combusta', 'reception', 'fortune']
 
 
 def tz_from_key(tzkey):
@@ -115,19 +92,20 @@ def overview(fc, R):
     else:
         lines.append(f"**{R['asc']['constellation']}** is rising. It has no sign in Lilly, so no planet stands for you, "
                      'and several of his tests cannot be made.')
-    tally = f"The Forecast found **{len(s)} good sign{'s' if len(s) != 1 else ''}** and **{len(w)} warning sign{'s' if len(w) != 1 else ''}**."
+    tally = (f"The Forecast found **{len(s)} encouraging sign{'s' if len(s) != 1 else ''}** and "
+             f"**{len(w)} caution{'s' if len(w) != 1 else ''}**.")
     if len(s) > len(w) + 1:
         tally += ' On balance the picture is **encouraging**.'
     elif len(w) > len(s) + 1:
-        tally += ' On balance the picture is **discouraging**.'
+        tally += ' On balance it **calls for care**: a time to prepare, wait or go gently rather than push.'
     else:
         tally += ' On balance the picture is **mixed**.'
     lines.append(tally)
     if cautions:
-        lines.append(f"{len(cautions)} of the warnings {'is' if len(cautions) == 1 else 'are'} among Lilly's "
-                     "*considerations before judgment* (marked ⚠ below). For Lilly these do not say that things will go "
-                     'badly; they say that this chart may not be safe to read at all, so he would treat its other '
-                     'signs with caution.')
+        lines.append(f"{len(cautions)} of the cautions {'is' if len(cautions) == 1 else 'are'} among Lilly's "
+                     "*considerations before judgment* (marked ⚠). For Lilly these do not say that things will go "
+                     'badly; they say that this chart may not be safe to read at all, so he would hold its other '
+                     'signs more lightly.')
     return '\n\n'.join(lines)
 
 
@@ -149,8 +127,9 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
     st.caption(f"{place} · {local:%A %d %B %Y, %H:%M} local time"
                + (f" · prepared for {name}" if name else ''))
     st.markdown('The **Forecast** box reads the chart of this moment the way William Lilly read a chart cast for a '
-                "question put to him. It looks for good signs and warning signs in his rules. This window says the "
-                'same things without the technical terms.')
+                "question put to him. It looks for encouraging signs and cautions in his rules. This window says the "
+                'same things without the technical terms. Under each part, **Show the working** gives the rule, the '
+                'page of his book and how much it counted.')
 
     st.markdown('#### In short')
     st.markdown(overview(fc, R))
@@ -158,11 +137,13 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
     st.markdown('#### What the Forecast is saying')
     c1, c2 = st.columns(2)
     with c1:
-        st.markdown('**Good signs**')
+        st.markdown('**Encouraging signs**')
         st.markdown(_plain_list(fc['strengths'], 'None under the current rules.'))
     with c2:
-        st.markdown('**Warning signs**')
+        st.markdown('**Where to take care**')
         st.markdown(_plain_list(fc['weaknesses'], 'None under the current rules.'))
+    with st.expander('Show the working', icon=':material/calculate:'):
+        working(fc)
 
     st.markdown('#### If you began something at this moment')
     st.markdown('The **Auspicious dates** page uses the same rules to look for good times to begin four kinds of '
@@ -186,7 +167,9 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
             if good:
                 st.markdown('**Helping:**\n' + '\n'.join(f'- {t}' for _, t, _, _ in good))
             if bad:
-                st.markdown('**Against:**\n' + '\n'.join(f"- {'⚠ ' if kk == 'avoid' else ''}{t}" for _, t, _, kk in bad))
+                st.markdown('**Take care:**\n' + '\n'.join(f"- {'⚠ ' if kk == 'avoid' else ''}{t}" for _, t, _, kk in bad))
+            with st.expander('Show the working', icon=':material/calculate:'):
+                working_undertaking(j, W[k]['q'])
             b = W[k]['best']
             if b:
                 st.caption(f"Best time this week: {b['start']:%a %d %b}, {b['start']:%H:%M}–{b['end']:%H:%M} "
@@ -198,18 +181,56 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
                'Grades are relative (an app rule): Best is the top tenth of the hours without a warning, Good the next quarter.')
 
     with st.expander('Words used in the Forecast'):
-        st.markdown('\n'.join(f'- **{t}**: {d}' for t, d in GLOSSARY))
+        for gk in GLOSSARY_KEYS:
+            st.markdown(glossary.explain_md(gk), unsafe_allow_html=True)
 
     st.info('This is a reading in the terms of a 1647 book, for study and reflection. Controlled studies have not found '
             'astrological charts to predict events, so please do not base important decisions on it.')
+
+# ---------------------------------------------------------------- "Show the working"
+def _basis(x):
+    b = str(x.get('basis') or '')
+    return '' if b == 'nan' else b
+
+
+def working(fc):
+    """Every line of the Forecast: Lilly's rule as he states it, the page (linked to the scan), how the app applies
+    it, and how it counts in the overall picture."""
+    if not (fc['strengths'] or fc['weaknesses']):
+        st.caption('No rule applies at this moment.')
+    for good, xs in ((True, fc['strengths']), (False, fc['weaknesses'])):
+        for x in xs:
+            caution = x.get('id') in CAUTIONS
+            counts = ('one encouraging sign' if good else
+                      "one caution, and one of Lilly's considerations before judgment (⚠)" if caution else 'one caution')
+            st.markdown(f"{'⚠ ' if caution else ''}*{x['text']}*  \n"
+                        f"Source: {glossary.cite_links(x['source'])}"
+                        + (f"  \nHow the app applies it: {_basis(x)}" if _basis(x) else '')
+                        + f"  \nCounts as: **{counts}**.")
+    st.caption('How the overall picture is decided (an app rule): **encouraging** when the encouraging signs outnumber '
+               'the cautions by two or more, **calls for care** when the cautions outnumber them by two or more, '
+               'otherwise **mixed**. The page links open that page of the 1647 book on the Internet Archive.')
+
+
+def working_undertaking(j, q):
+    """Every rule that scored for one undertaking at this moment, with its points and page."""
+    lines = []
+    for rid, text, pts, src, kind in j['items']:
+        head = ('⚠ caution: the grade becomes Avoid' if kind == 'avoid' else 'noted, 0 points' if kind == 'info'
+                else f'{pts:+.1f} points')
+        lines.append(f'- **{head}** · {text} · {glossary.cite_links(src)}')
+    st.markdown('\n'.join(lines) or '_No rule applies._')
+    st.caption(f"Total: {j['score']:+.1f} points."
+               + (f" This week, Best needs {q[0]:+.1f} or more and Good {q[1]:+.1f} or more (an app rule: the top "
+                  'tenth and the next quarter of the hours without a caution).' if q else ''))
+
 
 # ---------------------------------------------------------------- the Strengths and the Weaknesses, each in its own window
 def _rule_items(items):
     for x in items:
         with st.container(border=True):
             st.markdown(('⚠ ' if x.get('id') in CAUTIONS else '') + x['text'])
-            basis = str(x.get('basis') or '')
-            st.caption(x['source'] + (f' · {basis}' if basis and basis != 'nan' else ''))
+            st.caption(glossary.cite_links(x['source']) + (f' · {_basis(x)}' if _basis(x) else ''))
 
 
 def _rule_header(place, local):
@@ -221,7 +242,7 @@ def _rule_header(place, local):
 def show_strengths(fc, place, local):
     _rule_header(place, local)
     st.markdown("Lilly's rules that **favour** this moment, in his words, each with the page of *Christian Astrology* "
-                "(1647) it comes from.")
+                "(1647) it comes from (the links open the page).")
     if fc['strengths']:
         _rule_items(fc['strengths'])
     else:
@@ -233,8 +254,9 @@ def show_strengths(fc, place, local):
 def show_weaknesses(fc, place, local):
     _rule_header(place, local)
     st.markdown("Lilly's rules that **count against** this moment, in his words, each with the page of *Christian "
-                "Astrology* (1647) it comes from. Lines marked ⚠ are among his *considerations before judgment*: they "
-                "warn that the chart may not be safe to read at all, rather than that things will go badly.")
+                "Astrology* (1647) it comes from (the links open the page). Read them as cautions rather than verdicts. "
+                "Lines marked ⚠ are among his *considerations before judgment*: they warn that the chart may not be "
+                "safe to read at all, rather than that things will go badly.")
     if fc['weaknesses']:
         _rule_items(fc['weaknesses'])
     else:

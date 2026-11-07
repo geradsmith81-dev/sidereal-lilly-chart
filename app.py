@@ -69,17 +69,29 @@ import device
 st.markdown(theme.css(os.path.join(HERE, 'assets', 'background.jpg'), phone=device.phone()), unsafe_allow_html=True)
 # online: "Remember me on this device" - read the profile kept in this browser (once), save it when it changes
 getattr(user_profile, 'device_sync', lambda: None)()
+# a friend card opened from a QR code (the link carries ?card=LILLY1:...): offer to add it
+getattr(user_profile, 'incoming_card', lambda: None)()
 pg = st.navigation([st.Page(os.path.join(HERE, 'chart_page.py'), title='Chart', icon=':material/brightness_7:', default=True),
                     st.Page(os.path.join(HERE, 'elections_page.py'), title='Auspicious dates', icon=':material/calendar_month:'),
                     st.Page(os.path.join(HERE, 'friends_page.py'), title='Friends', icon=':material/group:'),
                     st.Page(os.path.join(HERE, 'about_page.py'), title='About', icon=':material/menu_book:')])
 user_profile.sidebar_card()
 device.switch()
+getattr(device, 'view_switch', lambda: None)()
+st.sidebar.caption('Free · no ads, trackers or account · readings from fixed rules of Lilly\'s 1647 book, with '
+                   'page references · birth details never stored on a server. More on the About page.')
 # credit for the background image (required by its CC BY 4.0 licence), on every page
 st.sidebar.caption('Background: Hubble\'s image of the Lagoon Nebula (heic1808a). Credit: NASA, ESA, STScI. '
                    '[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)')
 try:
     pg.run()
+except ModuleNotFoundError as e:
+    # a page needs one of the app's own files that is missing (not uploaded with the rest)
+    if not (e.name and os.path.exists(os.path.join(HERE, 'app.py')) and not os.path.exists(os.path.join(HERE, e.name + '.py'))
+            and e.name in ('glossary', 'qr_code')):
+        raise
+    st.error(f"**A file of the app is missing:** `{e.name}.py`. Upload all the files from the newest GitHub zip again "
+             f"(including `{e.name}.py`), then click **Manage app** (bottom right) > the three dots > **Reboot app**.")
 except AttributeError as e:
     # a page needs something that is not in one of the app's files: that file is older than the page
     m = re.match(r"module '(\w+)' has no attribute '(\w+)'", str(e))

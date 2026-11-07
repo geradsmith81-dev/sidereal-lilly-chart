@@ -38,7 +38,16 @@ else:
         st.markdown(person_line(me), unsafe_allow_html=True)
         st.write('')
         pic = st.checkbox('Include my picture in the card file', value=True, key='fr_pic')
-        a, b = st.columns(2)
+        q_, a, b = st.columns(3)
+        with q_.popover('Show a QR code', icon=':material/qr_code_2:', width='stretch'):
+            st.markdown('**Let a friend scan this with their phone camera.** It opens The Sidereal Oracle and offers '
+                        'to add you to their friends.')
+            try:
+                st.image(upf.card_qr_png(), width=280)
+            except Exception as e:                    # e.g. qr_code.py not uploaded
+                st.warning(f'The QR code could not be made ({e}). Use the card file or the text code instead.')
+            st.caption('The QR code holds your name, birth date, birth time and birthplace (not your picture). '
+                       'Show it only to people you want to have them.')
         a.download_button('Download my friend card (.lillycard)', upf.card_file(pic),
                           file_name=upf.card_filename(), mime='application/json', width='stretch')
         with b.popover('Or copy a text code', width='stretch'):

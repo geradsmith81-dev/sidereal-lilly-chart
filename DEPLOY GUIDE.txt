@@ -100,6 +100,8 @@ PART E. CHECK THAT IT WORKS
 
 IF SOMETHING GOES WRONG
 -----------------------
+- "A file of the app is missing: glossary.py" (or qr_code.py): these two
+  files are new. Upload them with the rest, then Reboot app.
 - The build log ends with an error such as "ModuleNotFoundError": the file
   requirements.txt is not at the top level of the repository. Check Part C,
   step 5.

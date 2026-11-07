@@ -41,6 +41,26 @@ def switch():
                            'lists, larger chart symbols and shorter tables. It switches on by itself on phones.')
 
 
+VIEW = 'view_full'
+
+
+def full_view():
+    """Simple view (False): the chart, the sky at this moment and the forecast in plain words.
+    Full view (True): also Lilly's tables, the planets in his words, the aspects and the sources.
+    Starts in Simple view on a phone and in Full view on a computer."""
+    if VIEW not in st.session_state:
+        st.session_state[VIEW] = not phone()
+    return bool(st.session_state[VIEW])
+
+
+def view_switch():
+    """The sidebar switch for Simple / Full view. Call once per run, from app.py."""
+    full_view()
+    st.sidebar.toggle("Full view (all of Lilly's tables)", key=VIEW,
+                      help="Off: Simple view - the chart, the sky at this moment and the forecast in plain words. "
+                           "On: also Lilly's tables of points, the planets in his words, the aspects and the sources.")
+
+
 def input_panel(label, expanded=False):
     """Where a page puts its inputs: the sidebar on a computer, a fold-out panel on a phone."""
     if phone():

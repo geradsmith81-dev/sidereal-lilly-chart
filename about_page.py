@@ -5,6 +5,7 @@ import streamlit as st
 
 import user_profile
 import device
+import glossary
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, 'assets')
@@ -14,6 +15,8 @@ user_profile.title('About this app', 'About {who} app')
 st.markdown("**Sidereal Oracle** draws an accurate map of the sky for any moment and place, and reads it the way the English "
             "astrologer **William Lilly** taught in his book ***Christian Astrology*** (London, 1647). This page explains, "
             "in plain words, where every part comes from and what the app adds of its own.")
+# the app's promise (from what users of other astrology apps praise and complain about)
+st.success("**Free, with no ads, no trackers and no account.** Every reading comes from fixed rules taken from Lilly's 1647 book, each with its page: no AI chatbot writes them, and everyone gets the same reading for the same moment. Your birth details are used only to calculate charts. They are never stored on a server or shared, and are kept on your device only if you tick *Remember me on this device*.", icon=':material/verified_user:')
 
 # ---------------------------------------------------------------- Lilly and his book
 st.subheader('William Lilly and his book')
@@ -129,6 +132,14 @@ st.markdown("Your name, picture, birth details and friends are " +
              "**Forget me on this device** (in the sidebar) deletes that copy. Nothing is saved on the server.") +
             " A friend card holds your name, birth details and (if you choose) picture: send it only to people you want "
             "to have them.")
+
+# ---------------------------------------------------------------- glossary
+st.subheader('Words used in the app')
+st.markdown("Short explanations of Lilly's terms. Each page number opens that page of the 1647 book (the Wellcome "
+            "Library copy on the Internet Archive). The same explanations open from the small buttons marked "
+            "\u24d8 on the Chart page.")
+with st.expander('Show all the words', icon=':material/menu_book:'):
+    glossary.full_list()
 
 # ---------------------------------------------------------------- credits
 st.subheader('Sources and credits')

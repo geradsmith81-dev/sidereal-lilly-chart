@@ -14,6 +14,7 @@ import places
 import inputs
 import user_profile
 import forecast
+import glossary
 import plain_forecast
 import theme
 import device
@@ -40,6 +41,45 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
 
 user_profile.title('The Sidereal Oracle', 'The Sidereal Oracle')      # home page title (user request)
 PHONE = device.phone()
+FULL = device.full_view()          # Simple view: the chart, the sky and the forecast; Full view: also Lilly's tables
+
+# Forecast rules -> the terms that explain them (the "i" buttons under the Forecast)
+RULE_TERMS = {'radical': ['radical'], 'not_radical': ['radical', 'hours'], 'asc_early': ['considerations', 'ascendant'],
+              'asc_late': ['considerations', 'ascendant'], 'asc_ophiuchus': ['sidereal'], 'moon_void': ['void'],
+              'moon_via_combusta': ['via_combusta'], 'moon_late': ['considerations'], 'saturn_asc': ['considerations'],
+              'saturn_7': ['considerations', 'houses'], 'lord_asc_combust': ['combust', 'lord_asc'],
+              'lord_7_afflicted': ['considerations', 'retrograde'], 'testimonies_equal': ['fortitudes'],
+              'lord_asc_strong': ['lord_asc', 'fortitudes'], 'lord_asc_weak': ['lord_asc', 'fortitudes'],
+              'lord_asc_angular': ['angles'], 'lord_asc_cadent': ['angles'], 'moon_apply_benefic': ['applying', 'fortunes'],
+              'moon_apply_malefic': ['applying', 'fortunes'], 'cazimi': ['cazimi'], 'reception': ['reception'],
+              'fortune_angular': ['fortune', 'angles'], 'fortune_cadent': ['fortune', 'angles'],
+              'ophiuchus_planet': ['sidereal'], 'polar': ['hours']}
+
+
+def _span(days):
+    h = days * 24
+    return 'under an hour' if h < 1 else f'about {h:.0f} h' if h < 36 else f'about {days:.1f} days'
+
+
+def sky_card(rows, bands, local):
+    """The sky at this moment: the Moon's phase and light, retrograde planets, the Moon's next contact or void of
+    course, and when she leaves her constellation."""
+    s = forecast.sky(rows, bands)
+    leave = local + dt.timedelta(days=s['exit_days'])
+    with st.container(border=True):
+        st.markdown('**The sky at this moment**')
+        st.markdown(f"{s['symbol']} **{s['phase']}**, {s['lit']}% lit: the Moon is "
+                    f"{'increasing' if s['waxing'] else 'decreasing'} in light ({'+2' if s['waxing'] else '-2'} for her in "
+                    "Lilly's table).")
+        st.markdown('**Retrograde:** ' + (', '.join(s['retrograde']) if s['retrograde'] else 'no planet') + '.')
+        if s['void']:
+            st.markdown(f"**The Moon is void of course** until she leaves {s['band']} ({_span(s['exit_days'])}, "
+                        f"{leave:%a %H:%M} local). Lilly: a time when things begun go on with difficulty.")
+        else:
+            p, asp, days = s['next']
+            st.markdown(f"**The Moon's next contact:** {asp} with {p}, in {_span(days)}. She leaves {s['band']} in "
+                        f"{_span(s['exit_days'])} ({leave:%a %H:%M} local).")
+        glossary.chips(['moon_light', 'retrograde', 'void', 'aspects'], 'sky')
 
 def set_now(tzkey):
     """Put the present moment (local clock time in tzkey) into the date and time boxes."""
@@ -128,21 +168,25 @@ with right:
         st.caption('No sunrise or sunset here today (polar). Equal hours from local mean midnight are used.')
     c1, c2, c3 = st.columns(3)
     a_ = R['asc']
-    c1.metric('Rising', a_['constellation'])
-    c2.metric('Lord of the Ascendant', R['lord_of_asc'] or '—')
+    c1.metric('Rising', a_['constellation'], help=glossary.TERMS['ascendant'][1])
+    c2.metric('Lord of the Ascendant', R['lord_of_asc'] or '—', help=glossary.TERMS['lord_asc'][1])
     if R['lord_of_asc']:
-        c3.metric(f"{R['lord_of_asc']}: net score", f"{P[R['lord_of_asc']]['net']:+d}")
-    st.write(f"**Figure:** {'diurnal (Sun above the horizon)' if R['sun_up'] else 'nocturnal (Sun below the horizon)'} · "
+        c3.metric(f"{R['lord_of_asc']}: net score", f"{P[R['lord_of_asc']]['net']:+d}", help=glossary.TERMS['fortitudes'][1])
+    sky_card(rows, bands, local)
+    if FULL:
+      st.write(f"**Figure:** {'diurnal (Sun above the horizon)' if R['sun_up'] else 'nocturnal (Sun below the horizon)'} · "
              f"**Part of Fortune:** {R['part_of_fortune']['constellation']}, {ORD(R['part_of_fortune']['house'])} house")
-    st.markdown('**Strength of the planets** (Lilly\'s table, p.115)')
-    sc = pd.DataFrame([dict(Planet=p['planet'], Constellation=p['constellation'] + (' R' if p['retrograde'] else ''),
-                            House=p['house'], Fortitudes=p['fortitudes'], Debilities=p['debilities'], Net=p['net'],
-                            Essentially=p['condition']) for p in R['planets']])
-    device.table(sc, ['Planet', 'House', 'Net', 'Essentially'])
+      st.markdown('**Strength of the planets** (Lilly\'s table, [p.115](' + glossary.scan_url(115) + '))')
+      sc = pd.DataFrame([dict(Planet=p['planet'], Constellation=p['constellation'] + (' R' if p['retrograde'] else ''),
+                              House=p['house'], Fortitudes=p['fortitudes'], Debilities=p['debilities'], Net=p['net'],
+                              Essentially=p['condition']) for p in R['planets']])
+      device.table(sc, ['Planet', 'House', 'Net', 'Essentially'])
+      found = [glossary.item_term(k) for p in R['planets'] for k, *_ in p['essential'] + p['accidental']]
+      glossary.chips(['fortitudes', 'essential'] + [k for k in found if k] + ['angles'], 'table')
 
 st.subheader('Forecast')
 with st.container(border=True):
-    st.markdown(fc['summary'])
+    st.markdown(fc['summary'] if FULL else plain_forecast.overview(fc, R))
     # the Strengths, the Weaknesses and the plain-English summary each open in their own window (user request)
     b0, b1_, b1 = st.columns(3)
     if b0.button(f"Strengths ({len(fc['strengths'])})", icon=':material/thumb_up:', key='strengths_btn', width='stretch',
@@ -156,11 +200,19 @@ with st.container(border=True):
                       'undertakings of the Auspicious dates page.'):
         tzkey = tzname if (tzname and not override) else f'UTC{tz:+.2f}'
         plain_forecast.show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, beams_rule, place)
+    fired = [x.get('id') for x in fc['strengths'] + fc['weaknesses']]
+    glossary.chips([g for rid in fired for g in RULE_TERMS.get(rid, [])], 'fc')
     st.caption(fc['note'])
     st.download_button('Download forecast (.txt)',
                        forecast.as_text(fc, header=(f"Prepared for {user_profile.get()['name']}\n" if user_profile.get()['name'] else '')
                                        + f"{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f})"),
                        file_name=f"forecast_{local:%Y%m%d_%H%M}.txt", mime='text/plain', icon=':material/download:')
+
+if not FULL:
+    st.caption("Simple view. Switch on **Full view** in the sidebar for Lilly's tables of points, the planets in his "
+               'words, the aspects and the sources.' + (' (On a phone, open the sidebar with the arrow at the top left.)'
+                                                         if PHONE else ''))
+    st.stop()
 
 st.subheader("The planets in Lilly's words")
 for p in R['planets']:
@@ -181,7 +233,8 @@ for p in R['planets']:
         e2.markdown('**Accidental**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
                                                          for _, txt, v, tag in p['accidental']), unsafe_allow_html=True)
         st.caption(f"Fortitudes {p['fortitudes']} · Debilities {p['debilities']} · Net {p['net']:+d}. Lilly: subtract the lesser "
-                   'number from the greater, "and so judge" (p.181).')
+                   f'number from the greater, "and so judge" ([p.181]({glossary.scan_url(181)})).')
+        glossary.chips([glossary.item_term(k) for k, *_ in p['essential'] + p['accidental']], 'pl_' + p['planet'])
 
 st.subheader('Aspects (Lilly\'s moieties of orbs, p.107)')
 if R['aspects']:
@@ -191,6 +244,7 @@ if R['aspects']:
                  ['Between', 'Aspect', 'Motion'])
 else:
     st.caption('No aspects within the planets\' moieties.')
+glossary.chips(['aspects', 'orbs', 'applying', 'partile'], 'asp')
 
 st.subheader('Bodies')
 tab = pd.DataFrame([dict(Body=r['body'], **{'Ecl. long. (°)': round(r['ecl_lon'], 2)}, **{'Ecliptic band': r['band']},
@@ -202,6 +256,7 @@ device.table(tab, ['Body', 'Ecliptic band', 'House'])
 if PHONE:
     st.caption('Phone layout shows the main columns of each table. To see them all, switch off "Phone layout" '
                'in the sidebar (open it with the arrow at the top left).')
+glossary.chips(['sidereal', 'houses', 'five_degree'], 'bodies')
 st.caption('House cusps (Regiomontanus): ' + ' · '.join(f"{i + 1}: {c['constellation']}" for i, c in enumerate(R['cusp_signs'])))
 
 with st.expander('Sources and certainty'):

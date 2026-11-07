@@ -6,6 +6,7 @@ Part of Fortune (p.143). The wording of each rule is in data/forecast_rules.csv 
 switched off there (enabled = False); the conditions that trigger each rule are in this file.
 Where the app has had to adapt a rule to the unequal IAU bands, the CSV 'basis' column says so.
 """
+import math
 import os
 import pandas as pd
 import lilly_layer as ll
@@ -56,6 +57,48 @@ def moon_void(rows, bands, horizon_days=4.0):
                 if rel > 0 and d / rel <= min(t_exit, horizon_days) and d / rel >= 0:
                     return False, name, t_exit
     return True, name, t_exit
+
+
+PHASES = [(0, 'New Moon', '\U0001F311'), (45, 'Waxing crescent', '\U0001F312'), (90, 'First quarter', '\U0001F313'),
+          (135, 'Waxing gibbous', '\U0001F314'), (180, 'Full Moon', '\U0001F315'), (225, 'Waning gibbous', '\U0001F316'),
+          (270, 'Last quarter', '\U0001F317'), (315, 'Waning crescent', '\U0001F318')]
+
+
+def moon_next(rows, bands, horizon_days=4.0):
+    """The Moon's next aspect to a planet before she leaves her constellation band (same reckoning as moon_void).
+    Returns (planet, aspect name, days) or None when she is void of course."""
+    by = {r['body']: r for r in rows}
+    m = by['Moon']
+    name, s, w, f = ll.band_of(m['ecl_lon'], bands)
+    t_exit = ((s + w - m['ecl_lon']) % 360) / max(m['speed'], 1e-6)
+    best = None
+    for p in ll.PLANETS:
+        if p == 'Moon':
+            continue
+        o = by[p]
+        rel = m['speed'] - o['speed']
+        if rel <= 0:
+            continue
+        for asp, ang in ll.ASPECTS:
+            for target in ({ang, -ang} if ang not in (0, 180) else {ang}):
+                days = ((o['ecl_lon'] + target - m['ecl_lon']) % 360) / rel
+                if days <= min(t_exit, horizon_days) and (best is None or days < best[2]):
+                    best = (p, asp, days)
+    return best
+
+
+def sky(rows, bands):
+    """'The sky at this moment': the Moon's phase and light, the planets retrograde, the Moon's next contact or
+    void of course, and when she leaves her constellation band."""
+    by = {r['body']: r for r in rows}
+    e = (by['Moon']['ecl_lon'] - by['Sun']['ecl_lon']) % 360          # elongation of the Moon from the Sun
+    k = int(((e + 22.5) % 360) // 45)
+    _, phase, symbol = PHASES[k]
+    void, band, t_exit = moon_void(rows, bands)
+    return dict(phase=phase, symbol=symbol, lit=round(50 * (1 - math.cos(math.radians(e)))),
+                waxing=e < 180, elongation=e,
+                retrograde=[p for p in ll.PLANETS if p not in ('Sun', 'Moon') and by[p]['speed'] < 0],
+                void=void, band=band, exit_days=t_exit, next=None if void else moon_next(rows, bands))
 
 
 def build(R, rows, bands, ph, rules_csv=None):
