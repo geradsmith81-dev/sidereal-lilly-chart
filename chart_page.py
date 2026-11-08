@@ -187,19 +187,20 @@ with right:
 st.subheader('Forecast')
 with st.container(border=True):
     st.markdown(fc['summary'] if FULL else plain_forecast.overview(fc, R))
-    # the Strengths, the Weaknesses and the plain-English summary each open in their own window (user request)
-    b0, b1_, b1 = st.columns(3)
+    # the plain-English summary first and most prominent (user request), then the Strengths and the Weaknesses;
+    # each opens in its own window
+    if st.button('What does this mean? (plain English)', type='primary', icon=':material/lightbulb:', key='plain_btn',
+                 width='stretch', help='A summary of the Forecast without the technical terms, with this moment judged '
+                                       'for the four undertakings of the Auspicious dates page.'):
+        tzkey = tzname if (tzname and not override) else f'UTC{tz:+.2f}'
+        plain_forecast.show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, beams_rule, place)
+    b0, b1_ = st.columns(2)
     if b0.button(f"Strengths ({len(fc['strengths'])})", icon=':material/thumb_up:', key='strengths_btn', width='stretch',
                  help="Lilly's rules that favour this moment, with his page references."):
         plain_forecast.show_strengths(fc, place, local)
     if b1_.button(f"Weaknesses ({len(fc['weaknesses'])})", icon=':material/report:', key='weaknesses_btn', width='stretch',
                   help="Lilly's rules that count against this moment, with his page references."):
         plain_forecast.show_weaknesses(fc, place, local)
-    if b1.button('What does this mean? (plain English)', icon=':material/lightbulb:', key='plain_btn', width='stretch',
-                 help='A summary of the Forecast without the technical terms, with this moment judged for the four '
-                      'undertakings of the Auspicious dates page.'):
-        tzkey = tzname if (tzname and not override) else f'UTC{tz:+.2f}'
-        plain_forecast.show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, beams_rule, place)
     fired = [x.get('id') for x in fc['strengths'] + fc['weaknesses']]
     glossary.chips([g for rid in fired for g in RULE_TERMS.get(rid, [])], 'fc')
     st.caption(fc['note'])

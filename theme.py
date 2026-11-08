@@ -105,6 +105,11 @@ def css(bg_path='assets/background.jpg', phone=False):
     return f"""<style>
     .stApp {{ {bg} }}
     [data-testid="stHeader"] {{ background: transparent; }}
+    :root {{ color-scheme: dark; }}          /* the browser's own controls (date picker, scrollbars) drawn dark */
+    /* "What does this mean? (plain English)": the main button of the Forecast box (user request) */
+    .st-key-plain_btn button {{ min-height: 3.4rem; font-size: 1.12rem; font-weight: 600; letter-spacing: 0.01em;
+        box-shadow: 0 0 0 1px {p['brass']}99, 0 0 22px {rgba(p['brass'], 0.45)}; }}
+    .st-key-plain_btn button:hover {{ box-shadow: 0 0 0 2px {p['brass']}, 0 0 28px {rgba(p['brass'], 0.6)}; }}
     [data-testid="stSidebar"] > div:first-child {{ background: {rgba(p['panel'], 0.86)}; backdrop-filter: blur(6px);
         border-right: 1px solid {p['orbit']}66; }}
     .block-container {{ background: {rgba(p['panel'], PANEL_ALPHA)}; border-radius: 16px; padding: 2rem 2.2rem 2.5rem;

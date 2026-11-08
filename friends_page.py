@@ -10,6 +10,7 @@ import electional as el
 import lilly_layer as ll
 import natal
 import inputs
+import places
 import user_profile as upf
 import device
 from calendar_view import GRADE_TXT, compute, heatmap, reasons, day_list
@@ -60,7 +61,7 @@ else:
 # ---------------------------------------------------------------- 2. add
 st.subheader('2 · Add a friend')
 with st.container(border=True):
-    t1, t2 = st.tabs(['Upload a card file', 'Paste a code'])
+    t1, t2, t3 = st.tabs(['Upload a card file', 'Paste a code', 'Optional: enter their data by hand'])
     found, err = None, None
     with t1:
         f = st.file_uploader('Your friend\'s .lillycard file', type=['lillycard', 'json'], key='fr_file')
@@ -76,6 +77,45 @@ with st.container(border=True):
                 found = upf.parse_card(code)
             except ValueError as e:
                 err = str(e)
+    with t3:
+        # for someone without the app (user request): name, birth date, time and place typed in by hand
+        st.caption("For someone who doesn't use the app. Their details are kept like a friend card: only add people "
+                   'who are happy for you to have them.')
+        m_name = st.text_input('Their name', key='mf_name', max_chars=upf.MAX_NAME, placeholder='e.g. Anna')
+        m_date = upf._date_inputs('mf', dt.date(1990, 1, 1))
+        m_unknown = st.checkbox('Birth time not known (noon is used)', key='mf_unknown')
+        m_time = dt.time(12, 0) if m_unknown else st.time_input('Birth time (local clock, 24-hour)', dt.time(12, 0),
+                                                                   step=60, key='mf_time')
+        m_q = st.text_input('Birthplace', key='mf_place', placeholder='e.g. London, Kraków, Chicago')
+        m_hits = places.search(m_q, n=10) if m_q.strip() else []
+        manual = None
+        if m_q.strip() and not m_hits:
+            st.warning('No match in the gazetteer (places with at least 1,000 inhabitants). Try a nearby town.')
+        if m_hits:
+            mi = st.selectbox('Matches', range(len(m_hits)), format_func=lambda k: places.label(m_hits[k]), key='mf_pick')
+            h = m_hits[mi]
+            off, note = places.utc_offset_hours(h['tz'], dt.datetime.combine(m_date, m_time))
+            if st.checkbox(f'Override the UTC offset at birth (automatic: {off:+.2f} h)', key='mf_override'):
+                off = st.number_input('UTC offset at birth (hours)', -12.0, 14.0, float(off), 0.25, key='mf_off')
+            elif note:
+                st.caption(note)
+            m_birth = upf._valid_birth(dict(date=m_date.isoformat(), time=m_time.strftime('%H:%M'),
+                                            time_known=not m_unknown, place=f"{h['name']}, {h['country']}",
+                                            lat=h['lat'], lon=h['lon'], tz=h['tz'], utc_offset=off))
+            n_ = upf.clean_name(m_name)
+            if m_birth:
+                st.caption(f"{upf.birth_text(m_birth)} · {h['lat']:.3f}°, {h['lon']:.3f}° · UTC{off:+.2f}")
+            if not n_:
+                st.info('Type their name to add them.')
+            elif m_birth:
+                manual = dict(name=n_, birth=m_birth, avatar=None)
+        if manual and st.button(f"Add {manual['name']} to my friends", type='primary', key='mf_add'):
+            upf.add_friend(manual)
+            for k in ('mf_name', 'mf_place', 'mf_pick', 'mf_unknown', 'mf_time', 'mf_override', 'mf_off',
+                      'mf_y', 'mf_m', 'mf_d'):
+                st.session_state.pop(k, None)
+            st.toast(f"{manual['name']} added to your friends.")
+            st.rerun()
     if err:
         st.error(err)
     if found:
