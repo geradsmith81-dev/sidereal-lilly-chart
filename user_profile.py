@@ -105,7 +105,7 @@ def save(name, avatar, birth, home=None):
 
 def _reset_place_search():
     """Start the place search of every page again from the (new) home place."""
-    for k in ['_place_q'] + [f'{pre}_{w}' for pre in ('c', 'e', 'f') for w in ('q', 'pick')]:
+    for k in ['_place_q'] + [f'{pre}_{w}' for pre in ('c', 'e', 'f') for w in ('q', 'pick', 'elev', 'elev_for')]:
         st.session_state.pop(k, None)
 
 
@@ -366,8 +366,10 @@ def _valid_home(h):
         lat, lon = float(h['lat']), float(h['lon'])
         if not (-90 <= lat <= 90 and -180 <= lon <= 180):
             return None
+        elev = float(h.get('elev') or 0.0)
+        elev = round(min(max(elev, 0.0), 9000.0))         # metres above sea level (typed in by the user)
         return dict(name=clean_name(h['name'])[:MAX_NAME], country=clean_name(h.get('country', ''))[:MAX_NAME],
-                    lat=round(lat, 5), lon=round(lon, 5), tz=str(h['tz'])[:64] if h.get('tz') else None)
+                    lat=round(lat, 5), lon=round(lon, 5), tz=str(h['tz'])[:64] if h.get('tz') else None, elev=elev)
     except (KeyError, ValueError, TypeError):
         return None
 
@@ -633,9 +635,16 @@ def edit_dialog():
         j = st.selectbox('Matches', range(len(hhits)), index=same_h[0] if same_h else 0,
                          format_func=lambda k: places.label(hhits[k]), key='pf_home_pick')
         hh = hhits[j]
-        home = _valid_home(dict(name=hh['name'], country=hh['country'], lat=hh['lat'], lon=hh['lon'], tz=hh['tz']))
-        st.caption(f"{hh['name']}, {hh['country']} · {hh['lat']:.3f}°, {hh['lon']:.3f}° · time zone {hh['tz']}. "
-                   'Not included in your friend card.')
+        same_place = bool(h0) and abs(hh['lat'] - h0['lat']) < 1e-3 and abs(hh['lon'] - h0['lon']) < 1e-3
+        h_elev = st.number_input('Elevation of where you live (metres above sea level)', 0.0, 9000.0,
+                                 float(h0.get('elev') or 0.0) if same_place else 0.0, 10.0, key='pf_home_elev',
+                                 help='Optional. The Chart, Auspicious dates and Friends pages start at this elevation '
+                                      'when the place is your home town. A map app, or searching "<your town> '
+                                      'elevation", gives it. It changes sunrise, and so the planetary hours, slightly.')
+        home = _valid_home(dict(name=hh['name'], country=hh['country'], lat=hh['lat'], lon=hh['lon'], tz=hh['tz'],
+                                elev=h_elev))
+        st.caption(f"{hh['name']}, {hh['country']} · {hh['lat']:.3f}°, {hh['lon']:.3f}° · {home['elev']:.0f} m · "
+                   f"time zone {hh['tz']}. Not included in your friend card.")
     remember = None
     if LOCAL:
         st.caption('On this computer your profile is saved in the app\'s "profile" folder and never leaves it.')
