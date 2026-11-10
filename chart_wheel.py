@@ -37,6 +37,19 @@ def legend_lines(theme=None):
             "(read by its ecliptic band)"]
 
 
+# The two band shades alternate by constellation name (user request), so the pattern is the same wherever the wheel
+# starts. Thirteen bands cannot all alternate, so one neighbouring pair must share a shade: Ophiuchus takes Scorpius'
+# shade, and Pisces and Aries differ like all the other neighbours.
+SHADE_ORDER = ('Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpius', 'Sagittarius', 'Capricornus',
+               'Aquarius', 'Pisces')
+
+
+def band_shade(name, i, th_):
+    name = 'Scorpius' if name == 'Ophiuchus' else name
+    k = SHADE_ORDER.index(name) if name in SHADE_ORDER else i
+    return th_['band_a'] if k % 2 == 0 else th_['band_b']
+
+
 def draw_wheel(rows, bands, title, asc, mc, cusps=None, scores=None, aspects=None, ax=None, theme=None, compact=False):
     """rows: chart rows (body, ecl_lon, alt, constellation); bands: [(start, abbr, name)];
     cusps: 12 house cusps; scores: {planet: net}; aspects: lilly_layer aspect dicts.
@@ -62,7 +75,7 @@ def draw_wheel(rows, bands, title, asc, mc, cusps=None, scores=None, aspects=Non
     ends = starts[1:] + [starts[0] + 360]
     for i, ((s, abbr, name), e) in enumerate(zip(bands, ends)):
         th = np.radians(np.linspace(s, e, 80))
-        shade = th_['band_a'] if i % 2 == 0 else th_['band_b']
+        shade = band_shade(name, i, th_)
         ax.fill_between(th, 0.86, 1.0, color=shade, lw=0)
         ax.plot([np.radians(s)] * 2, [0.86, 1.0], color=th_['band_edge'], lw=1.2)
         mid = np.radians((s + e) / 2)
