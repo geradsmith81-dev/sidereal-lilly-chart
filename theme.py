@@ -106,7 +106,39 @@ def css(bg_path='assets/background.jpg', phone=False):
     .stApp {{ {bg} }}
     [data-testid="stHeader"] {{ background: transparent; }}
     :root {{ color-scheme: dark; }}          /* the browser's own controls (date picker, scrollbars) drawn dark */
-    /* "What does this mean? (plain English)": the main button of the Forecast box (user request) */
+    /* Input boxes, dropdown lists and calendars always dark with light text, even when a phone in light mode makes
+       Streamlit draw them white (user report: white text on white boxes). In dark mode these are the same colours. */
+    [data-testid="stTextInputRootElement"], [data-testid="stTextAreaRootElement"], [data-testid="stNumberInputContainer"],
+    [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"], [data-testid="stDateInputField"],
+    [data-testid="stSelectbox"] div:has(> input), [data-testid="stTimeInput"] div:has(> input),
+    [data-testid="stMultiSelect"] div:has(> input),
+    [data-testid="stSelectbox"] [role="combobox"], [data-testid="stTimeInput"] [role="combobox"] {{
+        background-color: {p['panel']} !important; color: {p['starlight']} !important; }}
+    [data-testid="stApp"] input, [data-testid="stApp"] textarea, .stApp input, .stApp textarea {{
+        background-color: transparent !important; color: {p['starlight']} !important;
+        -webkit-text-fill-color: {p['starlight']} !important; caret-color: {p['starlight']} !important; }}
+    .stApp input::placeholder, .stApp textarea::placeholder {{ color: {p['dust']}b3 !important;
+        -webkit-text-fill-color: {p['dust']}b3 !important; }}
+    [data-testid="stSelectboxVirtualDropdown"], [data-testid="stSelectboxVirtualDropdown"] *,
+    [data-testid="stMultiSelectDropdown"], [data-testid="stMultiSelectDropdown"] *, [role="listbox"], [role="listbox"] *,
+    [data-testid="stDateInputCalendar"], [data-testid="stDateTimeInputCalendar"] {{
+        background-color: {p['panel']} !important; color: {p['starlight']} !important; }}
+    [role="listbox"] [role="option"]:hover, [role="listbox"] [role="option"][aria-selected="true"],
+    [data-testid="stSelectboxVirtualDropdown"] [role="option"]:hover,
+    [data-testid="stSelectboxVirtualDropdown"] [role="option"][aria-selected="true"] {{
+        background-color: {p['band_b']} !important; }}
+    /* Tablets and phones (touch screens): room at the bottom of the page, the sidebar and the windows, so the last
+       lines can be scrolled up clear of the browser's toolbars, the keyboard and Streamlit's buttons (user report);
+       a box being typed in is kept well above the bottom edge. Computers with a mouse are unchanged. */
+    @media (pointer: coarse) {{
+        [data-testid="stMainBlockContainer"], .block-container {{
+            padding-bottom: calc(10rem + env(safe-area-inset-bottom)) !important; }}
+        [data-testid="stSidebarUserContent"] {{ padding-bottom: calc(9rem + env(safe-area-inset-bottom)) !important; }}
+        [data-testid="stDialog"] [role="dialog"] {{ margin-bottom: calc(8rem + env(safe-area-inset-bottom)) !important; }}
+        html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], [data-testid="stSidebarContent"],
+        [data-testid="stDialog"] {{ scroll-padding-bottom: 40vh; }}
+    }}
+    /* "What does this mean?": the main button of the Forecast box (user request) */
     .st-key-plain_btn button {{ min-height: 3.4rem; font-size: 1.12rem; font-weight: 600; letter-spacing: 0.01em;
         box-shadow: 0 0 0 1px {p['brass']}99, 0 0 22px {rgba(p['brass'], 0.45)}; }}
     .st-key-plain_btn button:hover {{ box-shadow: 0 0 0 2px {p['brass']}, 0 0 28px {rgba(p['brass'], 0.6)}; }}
