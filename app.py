@@ -1,5 +1,5 @@
 """Sidereal Oracle: the real sky read through William Lilly's Christian Astrology (1647) - four pages:
-  1. Chart: the chart for one moment, with Lilly's dignities, scores and Forecast.
+  1. Chart: the chart for one moment, with Lilly's (or Ptolemy's) dignities, scores and Forecast.
   2. Auspicious dates: an elections calendar for beginning an undertaking.
   3. Friends: share friend cards, compare two nativities, find times good for both.
   4. About: how the app works and what text informs it.
@@ -85,8 +85,16 @@ pg = st.navigation([st.Page(os.path.join(HERE, 'chart_page.py'), title='Chart', 
 user_profile.sidebar_card()
 device.switch()
 getattr(device, 'view_switch', lambda: None)()
-st.sidebar.caption('Free · no ads, trackers or account · readings from fixed rules of Lilly\'s 1647 book, with '
-                   'page references · birth details never stored on a server. More on the About page.')
+# 'Whose reading?': William Lilly (1647) or Ptolemy (Tetrabiblos)
+try:
+    import school
+    school.switch()
+    _BOOK = ('Ptolemy\'s Tetrabiblos, with chapter references' if school.is_ptolemy()
+             else 'Lilly\'s 1647 book, with page references')
+except ModuleNotFoundError:          # school.py not uploaded yet: Lilly only
+    _BOOK = 'Lilly\'s 1647 book, with page references'
+st.sidebar.caption('Free · no ads, trackers or account · readings from fixed rules of ' + _BOOK
+                   + ' · birth details never stored on a server. More on the About page.')
 # credit for the background image (required by its CC BY 4.0 licence), on every page
 st.sidebar.caption('Background: Hubble\'s image of the Lagoon Nebula (heic1808a). Credit: NASA, ESA, STScI. '
                    '[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)')
