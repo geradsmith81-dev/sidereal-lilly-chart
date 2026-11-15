@@ -1,0 +1,37 @@
+{
+  "id": "/",
+  "name": "The Sidereal Oracle",
+  "short_name": "Sidereal Oracle",
+  "description": "The real sky, read through the eyes of a 17th-century English astrologer: accurate charts, plain-English readings with sources, and good times to begin things.",
+  "start_url": "/app/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b111c",
+  "theme_color": "#0b111c",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "lifestyle",
+    "education"
+  ]
+}

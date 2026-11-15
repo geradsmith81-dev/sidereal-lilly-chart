@@ -1,5 +1,5 @@
 """Sidereal Oracle: the real sky read through William Lilly's Christian Astrology (1647) - four pages:
-  1. Chart: the chart for one moment, with Lilly's (or Ptolemy's) dignities, scores and Forecast.
+  1. Chart: the chart for one moment, with Lilly's dignities, scores and Forecast.
   2. Auspicious dates: an elections calendar for beginning an undertaking.
   3. Friends: share friend cards, compare two nativities, find times good for both.
   4. About: how the app works and what text informs it.
@@ -67,34 +67,19 @@ import theme
 import device
 
 st.markdown(theme.css(os.path.join(HERE, 'assets', 'background.jpg'), phone=device.phone()), unsafe_allow_html=True)
-# no wording twice on one page (user request): a fresh register of what has been said, every run
-for _m in ('glossary', 'plain_forecast'):
-    try:
-        getattr(importlib.import_module(_m), 'new_page', lambda: None)()
-    except Exception:
-        pass
 # online: "Remember me on this device" - read the profile kept in this browser (once), save it when it changes
 getattr(user_profile, 'device_sync', lambda: None)()
 # a friend card opened from a QR code (the link carries ?card=LILLY1:...): offer to add it
 getattr(user_profile, 'incoming_card', lambda: None)()
 pg = st.navigation([st.Page(os.path.join(HERE, 'chart_page.py'), title='Chart', icon=':material/brightness_7:', default=True),
                     st.Page(os.path.join(HERE, 'elections_page.py'), title='Auspicious dates', icon=':material/calendar_month:'),
-                    st.Page(os.path.join(HERE, 'astrosophy_page.py'), title='Astrosophy Birth Chart', icon=':material/auto_awesome:'),
                     st.Page(os.path.join(HERE, 'friends_page.py'), title='Friends', icon=':material/group:'),
                     st.Page(os.path.join(HERE, 'about_page.py'), title='About', icon=':material/menu_book:')])
 user_profile.sidebar_card()
 device.switch()
 getattr(device, 'view_switch', lambda: None)()
-# 'Whose reading?': William Lilly (1647) or Ptolemy (Tetrabiblos)
-try:
-    import school
-    school.switch()
-    _BOOK = ('Ptolemy\'s Tetrabiblos, with chapter references' if school.is_ptolemy()
-             else 'Lilly\'s 1647 book, with page references')
-except ModuleNotFoundError:          # school.py not uploaded yet: Lilly only
-    _BOOK = 'Lilly\'s 1647 book, with page references'
-st.sidebar.caption('Free · no ads, trackers or account · readings from fixed rules of ' + _BOOK
-                   + ' · birth details never stored on a server. More on the About page.')
+st.sidebar.caption('Free · no ads, trackers or account · readings from fixed rules of Lilly\'s 1647 book, with '
+                   'page references · birth details never stored on a server. More on the About page.')
 # credit for the background image (required by its CC BY 4.0 licence), on every page
 st.sidebar.caption('Background: Hubble\'s image of the Lagoon Nebula (heic1808a). Credit: NASA, ESA, STScI. '
                    '[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)')
@@ -102,19 +87,11 @@ try:
     pg.run()
 except ModuleNotFoundError as e:
     # a page needs one of the app's own files that is missing (not uploaded with the rest)
-    if (e.name or '').split('.')[0] == 'astrosophy':
-        # the Astrosophy Birth Chart page needs the folder 'astrosophy' (with its own 'data' folder inside)
-        st.error("**A folder of the app is missing or incomplete:** `astrosophy` (needed for the Astrosophy Birth "
-                 f"Chart page; missing: `{e.name}`). Upload the whole folder `astrosophy` from the newest GitHub zip, "
-                 "with the `data` folder inside it, then click **Manage app** (bottom right) > the three dots > "
-                 "**Reboot app**. On your computer: copy all the files and folders from the newest zip into the app "
-                 "folder, choosing **Replace**.")
-    else:
-        if not (e.name and os.path.exists(os.path.join(HERE, 'app.py')) and not os.path.exists(os.path.join(HERE, e.name + '.py'))
-                and e.name in ('glossary', 'qr_code', 'school', 'ptolemy_layer', 'ptolemy_forecast')):
-            raise
-        st.error(f"**A file of the app is missing:** `{e.name}.py`. Upload all the files from the newest GitHub zip again "
-                 f"(including `{e.name}.py`), then click **Manage app** (bottom right) > the three dots > **Reboot app**.")
+    if not (e.name and os.path.exists(os.path.join(HERE, 'app.py')) and not os.path.exists(os.path.join(HERE, e.name + '.py'))
+            and e.name in ('glossary', 'qr_code')):
+        raise
+    st.error(f"**A file of the app is missing:** `{e.name}.py`. Upload all the files from the newest GitHub zip again "
+             f"(including `{e.name}.py`), then click **Manage app** (bottom right) > the three dots > **Reboot app**.")
 except AttributeError as e:
     # a page needs something that is not in one of the app's files: that file is older than the page
     m = re.match(r"module '(\w+)' has no attribute '(\w+)'", str(e))

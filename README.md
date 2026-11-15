@@ -89,3 +89,13 @@ Planetary data: NASA JPL DE440s via Skyfield. Places: GeoNames (CC BY 4.0). Time
 
 This reading is traditional symbolism for study and reflection; controlled studies have not found
 astrological charts to be predictive.
+
+## Store version (siderealoracle.com)
+
+The same files also run on Render.com as https://siderealoracle.com, for the Google Play app
+(package com.siderealoracle.app). `Dockerfile` builds it: Streamlit serves the app at `/app/`, and Caddy
+(`Caddyfile`) serves the welcome page, privacy policy, icons and `/.well-known/assetlinks.json` from the
+`web` folder (`web/well-known/assetlinks.json`, without a dot because GitHub's web upload drops dot-folders).
+`streamlit_config.toml` is copied to `.streamlit/config.toml` during the build for the same reason.
+`LILLY_APP_URL` (set in the Dockerfile) is the address printed in friend-card QR codes.
+Streamlit Community Cloud ignores all of this and keeps running the free version.

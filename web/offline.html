@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Offline - The Sidereal Oracle</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Accurate charts of the real sky, read the way William Lilly taught in Christian Astrology (1647).">
+<meta name="theme-color" content="#0b111c">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sidereal Oracle">
+<style>
+  :root { --void:#0b111c; --panel:#111927; --band:#172134; --orbit:#4f6789;
+          --starlight:#f7f1ea; --dust:#c4ccdb; --flame:#f2994a; --peach:#ffcd9c;
+          --primary:#b5461a; --ion:#6fd0dc; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--void); color:var(--starlight);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif; line-height:1.5; }
+  body { min-height:100vh; padding: env(safe-area-inset-top) env(safe-area-inset-right)
+         env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background: radial-gradient(ellipse at 50% 0%, #21304a 0%, var(--void) 70%) fixed; }
+  main { max-width:640px; margin:0 auto; padding:28px 20px 40px; }
+  .hero { text-align:center; }
+  .hero img { width:120px; height:120px; border-radius:26px; box-shadow:0 6px 28px rgba(0,0,0,.5); }
+  h1 { color:var(--peach); font-weight:normal; font-size:1.9rem; margin:16px 0 4px; letter-spacing:.01em; }
+  h2 { color:var(--peach); font-weight:normal; font-size:1.25rem; margin:0 0 8px; }
+  .sub { color:var(--dust); margin:0 0 14px; }
+  .promise { color:var(--starlight); font-size:.95rem; margin:0 0 22px; padding:10px 14px; border-radius:12px;
+    border:1px solid #21304a; background:rgba(17,25,39,.7); }
+  a.btn, button.btn { display:block; width:100%; text-align:center; text-decoration:none;
+    background:var(--primary); color:#fff; border:0; border-radius:12px; padding:15px 18px;
+    font:inherit; font-size:1.15rem; cursor:pointer; margin:10px 0; }
+  button.btn.alt { background:transparent; border:1px solid var(--orbit); color:var(--starlight); }
+  .card { background:rgba(17,25,39,.85); border:1px solid #21304a; border-radius:14px;
+    padding:16px 18px; margin:18px 0; }
+  details > summary { cursor:pointer; color:var(--peach); font-size:1.12rem; list-style:none; }
+  details > summary::-webkit-details-marker { display:none; }
+  details > summary::before { content:"\25B8  "; color:var(--flame); }
+  details[open] > summary::before { content:"\25BE  "; }
+  ol { padding-left:1.3em; margin:10px 0 4px; } li { margin:6px 0; }
+  .key { color:var(--ion); white-space:nowrap; }
+  .note { color:var(--dust); font-size:.92rem; }
+  .hidden { display:none !important; }
+  #splash { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:24px; background:var(--void); }
+  #splash img { width:110px; height:110px; border-radius:24px; animation:turn 9s linear infinite; }
+  @keyframes turn { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { #splash img { animation:none; } }
+  #splash p { color:var(--dust); max-width:24em; }
+  footer { color:var(--dust); font-size:.8rem; text-align:center; margin-top:28px; }
+  footer a { color:var(--dust); }
+</style>
+</head>
+<body>
+<main>
+  <div class="hero">
+    <img src="/icons/apple-touch-icon.png" alt="">
+    <h1>No connection</h1>
+    <p class="sub">The Sidereal Oracle calculates every chart online from NASA JPL data, so it needs the internet.
+       Please check your Wi-Fi or mobile data and try again.</p>
+  </div>
+  <a class="btn" href="/app/">Try again</a>
+</main>
+</body>
+</html>

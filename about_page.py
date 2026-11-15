@@ -50,36 +50,6 @@ the page it comes from.
 """)
 
 # ---------------------------------------------------------------- the sky
-st.subheader("Two readings: Lilly or Ptolemy")
-st.markdown(
-    "The sidebar switch **Whose reading?** chooses the author whose rules read the chart. **William Lilly** "
-    "(*Christian Astrology*, 1647) is the default. **Ptolemy** reads it with the *Tetrabiblos* (2nd century), quoted "
-    "from F. E. Robbins's translation (Loeb, 1940), with book, chapter and Loeb page, linked to the text on "
-    "LacusCurtius.\n\n"
-    "In Ptolemy's reading the Chart page changes:\n"
-    "- **Dignities.** Ptolemy's houses, triangles by sect (Venus and the Moon share the water triangle with "
-    "Mars), exaltations and depressions, and his own terms (I.17-I.21). He has no detriment and no decan faces; "
-    "he has the *proper face*, *chariots* and *rejoicing* by sect (I.23).\n"
-    "- **Strength.** Testimonies from Ptolemy's places of authority (III.10, I.24), being oriental and adding to "
-    "motion, the Sun's rays, sect, and the beneficent and maleficent planets. Ptolemy gives no numbers, so the "
-    "points are app weights on Lilly's scale.\n"
-    "- **Places.** Instead of Regiomontanus houses, each place is a whole IAU constellation. The first is the "
-    "one that holds the point 5° above the Ascendant (after III.10), and Ophiuchus shares Scorpius's place.\n"
-    "- **Ruler.** The ruler of the horoscope is found by Ptolemy's five ways (III.2-III.3), not just by the "
-    "rising sign.\n"
-    "- **The planets in his words.** Ptolemy's pictures of each planet as ruler of the soul, in an honourable "
-    "position or the opposite (III.13).\n"
-    "- **The Forecast.** Ptolemy wrote no rules for questions or for choosing times, so the moment is read as he "
-    "reads a nativity: the sect and its light, the luminaries on the angles (IV.3), the planets at the angles, the "
-    "ruler of the horoscope and the lord of the Lot of Fortune (IV.2).\n\n"
-    "What stays the same: the real sky, the IAU constellations as signs, the aspects (with the medieval orbs, "
-    "since Ptolemy gives none) and the Friends comparison, which is Ptolemy's own rule (IV.7) in both readings. "
-    "The **Auspicious dates** page and the four undertakings always use Lilly's election rules, because the "
-    "Tetrabiblos has none.\n\n"
-    "One departure is the app's own choice: Ptolemy counts the signs from the equinoxes (I.22), that is, the "
-    "tropical zodiac. Here, as in Lilly's reading, the signs are the real constellations. Every adaptation is "
-    "listed under **Sources and certainty** at the foot of the Chart page (Full view).")
-
 st.subheader('Step 1 · The real sky')
 st.markdown("""
 - **Where the planets are.** Positions come from NASA's Jet Propulsion Laboratory (the *DE440* planetary data, the same
@@ -123,13 +93,6 @@ owne Figure of Elections". So the page uses his rules for when a matter is "brou
 strength of the planets involved, and his cautions, such as a "void of course" Moon. With your birth details it also
 checks how each moment suits *your* birth chart.
 
-**Astrosophy Birth Chart.** A second way of reading a birth chart, from the Astrosophy Birth Chart app: the real
-sky among the 13 IAU zodiac constellations (Ophiuchus included), read through Rudolf Steiner's indications and the
-*astrosophy* of Elisabeth Vreede and Willi Sucher. Its tabs give the birth chart (with a plain-English summary), the
-prenatal epoch after Sucher's Hermetic Rule, the life rhythms in seven-year periods, a Biography chart for your own notes
-year by year, today's sky, and the sources. Each reading carries a tag saying whose idea it is: Steiner's, Vreede's or
-Sucher's, or a rule of the app. It uses your profile's birth details and the same NASA JPL file as the other pages.
-
 **Friends.** You and a friend exchange *friend cards* (small files you send each other yourselves). The page compares
 your two birth charts by the rule of the ancient astronomer **Ptolemy**, which Lilly draws on. It looks at the Sun,
 Moon, Ascendant and Part of Fortune in both charts. It then finds times good for both of you: a moment counts only as
@@ -162,18 +125,13 @@ st.info("**A plain word about astrology.** This app shows how a 17th-century ast
 # ---------------------------------------------------------------- your data
 st.subheader('Your information')
 st.markdown("Your name, picture, birth details and friends are " +
-            ("saved only on this computer, in the app's **profile** folder, and none of it is sent anywhere."
+            ("saved only on this computer, in the app's **profile** folder. Nothing is sent anywhere."
              if user_profile.LOCAL else
              "kept only while the app is open, unless you tick **Remember me on this device** in your profile: "
              "then they are also kept in this browser's own storage on your phone or computer, and nowhere else. "
              "**Forget me on this device** (in the sidebar) deletes that copy. Nothing is saved on the server.") +
             " A friend card holds your name, birth details and (if you choose) picture: send it only to people you want "
-            "to have them. **Use my location** (in your profile) asks your phone or computer for its position only when "
-            "you press it, or once by itself while no home place is set; the position, rounded to about 10 m, is kept "
-            "in your profile only and never goes into a friend card. To fill in the elevation, the app sends only the "
-            "coordinates of the place (never your name or birth details) to the open elevation data on Amazon's "
-            "servers (AWS Terrain Tiles) and, over water or when those cannot be reached, to the free Open-Meteo "
-            "elevation service.")
+            "to have them.")
 
 # ---------------------------------------------------------------- glossary
 st.subheader('Words used in the app')
@@ -188,8 +146,6 @@ st.subheader('Sources and credits')
 src = pd.read_csv(os.path.join(HERE, 'data', 'sources.csv'), encoding='utf-8')
 device.table(src, column_config={'url': st.column_config.LinkColumn('Link')})
 st.caption("Lilly's text: Wellcome Collection copy of the 1647 edition, Internet Archive item b30338724, public domain. "
-           "Planet data: NASA JPL DE440s via Skyfield. Places: GeoNames (CC BY 4.0). Elevation: Terrain Tiles on the AWS Registry of Open Data (Mapzen/Tilezen: SRTM, USGS 3DEP/NED, GMTED2010, ETOPO1 and national models), checked with the Open-Meteo Elevation API (CC BY 4.0), from the Copernicus "
-           "DEM GLO-90 (© DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018, provided under "
-           "COPERNICUS by the European Union and ESA). Time zones: IANA tz database. "
+           "Planet data: NASA JPL DE440s via Skyfield. Places: GeoNames (CC BY 4.0). Time zones: IANA tz database. "
            "Background: Hubble's image of the Lagoon Nebula (heic1808a), credit NASA, ESA, STScI, CC BY 4.0; "
            "the colours of the app were taken from it.")

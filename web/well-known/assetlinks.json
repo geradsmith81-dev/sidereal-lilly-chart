@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.siderealoracle.app",
+      "sha256_cert_fingerprints": [
+        "PASTE-THE-PWABUILDER-FINGERPRINT-HERE",
+        "PASTE-THE-GOOGLE-PLAY-APP-SIGNING-FINGERPRINT-HERE"
+      ]
+    }
+  }
+]
