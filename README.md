@@ -99,3 +99,9 @@ The same files also run on Render.com as https://siderealoracle.com, for the Goo
 `streamlit_config.toml` is copied to `.streamlit/config.toml` during the build for the same reason.
 `LILLY_APP_URL` (set in the Dockerfile) is the address printed in friend-card QR codes.
 Streamlit Community Cloud ignores all of this and keeps running the free version.
+
+## License
+
+The code and texts written for this app are released under the [MIT License](LICENSE),
+Copyright (c) 2026 Gerad Smith. Material by others (the Lagoon Nebula image, Lilly's 1647 text,
+JPL, Hipparcos and GeoNames data) keeps its own terms: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
