@@ -66,6 +66,7 @@ def place_picker(prefix):
         if not hits:
             st.warning('No match in the gazetteer (places with population ≥ 1000). Try another spelling '
                        'or enter coordinates manually.')
+            user_profile.page_end()
             st.stop()
         start = next((i for i, h in enumerate(hits) if lat0 is not None and q == q0
                       and abs(h['lat'] - lat0) < 1e-3 and abs(h['lon'] - lon0) < 1e-3), 0)

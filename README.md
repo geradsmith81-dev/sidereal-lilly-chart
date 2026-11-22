@@ -36,8 +36,9 @@ A profile box in the sidebar takes a name, a picture and birth details, and a ho
 In this online version the profile is kept **only in the visitor's browser session**, unless the visitor ticks
 **Remember me on this device**: then the profile and friends are also kept in that browser's `localStorage` (pictures as
 small JPEGs), via a small `st.components.v2` component, and filled in again on the next visit. **Forget me on this
-device** deletes the stored copy. Nothing is written to the server, which all visitors share. The desktop version (started with `Start app.bat`, which sets `LILLY_LOCAL_PROFILE=1`)
-saves it in a local `profile/` folder instead.
+device** deletes the stored copy. Nothing is written to the server, which all visitors share. The Windows desktop version (started with `Start app.bat`)
+saves it in the user's own data folder, `%LOCALAPPDATA%\TheSiderealOracle\profile`, instead; when the desktop version is
+shared on a local network, only the person at that computer uses the saved profile.
 
 ## Phones and tablets
 
@@ -83,6 +84,20 @@ See **DEPLOY GUIDE.txt** for step-by-step instructions. In short:
    main file `app.py`, and under *Advanced settings* pick **Python 3.12**. Deploy.
 4. The first start takes about a minute longer: the app downloads the NASA JPL file `de440s.bsp` (32 MB).
 
+## Run locally
+
+Install the exact, checksum-verified versions the app was tested with (Python 3.12 or newer):
+
+```
+python -m venv .venv
+.venv\Scripts\python -m pip install --require-hashes --only-binary ":all:" -r requirements.txt
+.venv\Scripts\python -m streamlit run app.py --server.address 127.0.0.1
+```
+
+`requirements.in` lists the direct components; `requirements.txt` is the full lock with SHA-256
+hashes (generated with `uv pip compile requirements.in --universal --python-version 3.12
+--generate-hashes --only-binary :all:`). The same lock serves Streamlit Community Cloud.
+
 ## Credits
 Lilly's text: Wellcome Library copy of the 1647 edition (Internet Archive item b30338724, public domain).
 Planetary data: NASA JPL DE440s via Skyfield. Places: GeoNames (CC BY 4.0). Time zones: IANA tz database.
@@ -105,3 +120,12 @@ Streamlit Community Cloud ignores all of this and keeps running the free version
 The code and texts written for this app are released under the [MIT License](LICENSE),
 Copyright (c) 2026 Gerad Smith. Material by others (the Lagoon Nebula image, Lilly's 1647 text,
 JPL, Hipparcos and GeoNames data) keeps its own terms: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+## Security and privacy
+
+- The Windows desktop copy of The Sidereal Oracle listens on this computer only (127.0.0.1). "Share on this network.bat" can open it to the local network, protected by a new password each time; only the person at the computer sees Quit and data-clearing controls.
+- The desktop copy keeps its data and logs in `%LOCALAPPDATA%\TheSiderealOracle`, checks its program files against `MANIFEST.sha256` at every start, and each release publishes SHA-256 checksums of its zips in `SHA256SUMS.txt`.
+- All components are pinned to exact versions and installed with `--require-hashes`.
+- The desktop-only code (`desktop.py`) does nothing on a hosted copy: no Quit button is shown there.
+- The online copy writes nothing to the server: profiles stay in the visitor's browser session, or in that browser's own storage if the visitor ticks *Remember me on this device*.
+- Uploaded pictures are limited to 15 MB and 50 million pixels and are re-encoded; friend cards are limited to 1 MB, and pasted card codes are size-checked before they are unpacked.

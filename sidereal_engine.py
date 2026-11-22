@@ -32,9 +32,14 @@ from skyfield import nutationlib
 from skyfield.api import load_constellation_map, load_constellation_names
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-_load = Loader(os.path.join(HERE, 'ephem'))
+EPH_DIR = os.path.join(HERE, 'ephem')
+EPH_NAME = 'de440.bsp' if os.path.exists(os.path.join(EPH_DIR, 'de440.bsp')) else 'de440s.bsp'
+# The desktop copy ships ephem/de440s.bsp. If it is missing there, the launcher's data folder
+# (%LOCALAPPDATA%\TheSiderealOracle\ephem) receives the download instead of the program folder.
+if not os.path.exists(os.path.join(EPH_DIR, EPH_NAME)) and os.environ.get('SIDEREALORACLE_EPHEM_DIR'):
+    EPH_DIR = os.environ['SIDEREALORACLE_EPHEM_DIR']
+_load = Loader(EPH_DIR)
 ts = _load.timescale(builtin=True)
-EPH_NAME = 'de440.bsp' if os.path.exists(os.path.join(HERE, 'ephem', 'de440.bsp')) else 'de440s.bsp'
 eph = _load(EPH_NAME)   # downloads de440s.bsp from JPL on first start if absent
 _const_at = load_constellation_map()
 _const_name = dict(load_constellation_names())

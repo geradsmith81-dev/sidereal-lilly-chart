@@ -138,7 +138,9 @@ for fr in friends:
     if c2.button('Remove', key='rm_' + fr['id'], width='stretch'):
         upf.remove_friend(fr['id'])
         st.rerun()
-st.caption('Saved on this computer in the app\'s "profile" folder.' if upf.LOCAL else
+st.caption('Saved on this computer in your own user folder (%LOCALAPPDATA%\\TheSiderealOracle\\profile).'
+           if upf.on_disk() else
+           'Kept only while this page is open (the app is shared from another computer).' if upf.LOCAL else
            ('Remembered on this device (with your profile). Keep their card files to add them on other devices.'
             if getattr(upf, 'remembered', lambda: False)() else
             'Online, friends are kept only while the app is open, unless you tick "Remember me on this device" in '
@@ -148,6 +150,7 @@ st.caption('Saved on this computer in the app\'s "profile" folder.' if upf.LOCAL
 st.subheader('4 · Compare and combine')
 if not (me['birth'] and friends):
     st.info('To compare, you need your own birth details in your profile and at least one friend.')
+    upf.page_end()
     st.stop()
 fi = st.selectbox('Friend', range(len(friends)), format_func=lambda i: friends[i]['name'], key='fr_pick')
 fr = friends[fi]
@@ -202,6 +205,7 @@ if go:
     with st.spinner('Judging every moment for both of you ... (about 20 seconds per month)'):
         st.session_state['fr_result'] = (params, compute(*params[:-1]))
 if 'fr_result' not in st.session_state or st.session_state['fr_result'][0][-1] != fr['id']:
+    upf.page_end()
     st.stop()
 p_used, (res, bands, _) = st.session_state['fr_result']
 if p_used != params:

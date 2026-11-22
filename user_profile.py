@@ -1,8 +1,11 @@
 """The user's profile (name, picture, birth details) and their friends' cards.
 
 Where it is kept
-  * Desktop app (started with "Start app.bat", which sets LILLY_LOCAL_PROFILE=1): in the folder profile/ inside the
-    app (profile.json, avatar.png, friends.json), so it is there next time. It never leaves the computer.
+  * Desktop app (started with "Start app.bat", whose launcher sets SIDEREALORACLE_PROFILE_DIR): in the user's own
+    data folder, %LOCALAPPDATA%\\TheSiderealOracle\\profile (profile.json, avatar.png, friends.json), so it is there
+    next time. It never leaves the computer. When the app is shared on the local network ("Share on this
+    network.bat"), only the person at this computer uses that stored profile; visitors from other devices get a
+    profile for their session only.
   * Online (Streamlit Community Cloud) or any other start: for the current browser session only, unless the visitor
     ticks "Remember me on this device". Then the profile and friends are also kept in that browser's own storage
     (localStorage, on the visitor's phone or computer) and filled in again next time. Nothing is ever written to the
@@ -32,10 +35,13 @@ from PIL import Image, ImageOps
 import places
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DIR = os.path.join(HERE, 'profile')
-LOCAL = os.environ.get('LILLY_LOCAL_PROFILE') == '1'
+# set by tools/launch.py (desktop copy only): %LOCALAPPDATA%\TheSiderealOracle\profile
+DIR = os.environ.get('SIDEREALORACLE_PROFILE_DIR') or ''
+LOCAL = bool(DIR)
 MAX_NAME = 40
 MAX_UPLOAD_MB = 15
+MAX_PIXELS = 50_000_000               # larger pictures (e.g. 10,000 x 5,000 pixels) are refused with a plain message
+MAX_CODE_CHARS = 64 * 1024            # a pasted LILLY1: code longer than this cannot be a friend card
 MAX_CARD_KB = 1024
 AVATAR_PX = 256
 KEY, FKEY = 'profile', 'friends'
@@ -86,10 +92,50 @@ def _write_disk(prof):
         os.remove(p)
 
 
+def on_disk():
+    """True when this visitor's profile is the one stored on this computer: the desktop copy, and the person at this
+    computer (not a visitor from another device while the app is shared on the network)."""
+    if not LOCAL:
+        return False
+    try:
+        import desktop
+        return desktop.client_is_local(st)
+    except Exception:
+        return False
+
+
+def forget_session():
+    """After "Clear stored data": drop the profile and friends held for this session as well."""
+    for k in (KEY, FKEY):
+        st.session_state.pop(k, None)
+
+
+def page_end():
+    """The desktop-only controls (Quit, Clear stored data) at the bottom of every page. Call it last on a page, and
+    just before any st.stop(). It does nothing on the hosted copy."""
+    try:
+        import desktop
+    except Exception:
+        return
+    desktop.desktop_controls(_MainArea(), on_cleared=forget_session)
+
+
+class _MainArea:
+    """streamlit, except that the controls' expander always goes in the main page area, even when page_end() is
+    called from inside the sidebar or the phone layout's input panel (an expander may not sit inside another)."""
+
+    def __getattr__(self, name):
+        return getattr(st, name)
+
+    def expander(self, *a, **k):
+        main = getattr(st, '_main', None)
+        return (main or st).expander(*a, **k)
+
+
 def get():
     """The current profile: dict(name=str, avatar=PNG bytes or None, birth=dict or None)."""
     if KEY not in st.session_state:
-        st.session_state[KEY] = _read_disk() if LOCAL else dict(name='', avatar=None, birth=None)
+        st.session_state[KEY] = _read_disk() if on_disk() else dict(name='', avatar=None, birth=None)
     st.session_state[KEY].setdefault('birth', None)
     st.session_state[KEY].setdefault('home', None)
     return st.session_state[KEY]
@@ -101,7 +147,7 @@ def save(name, avatar, birth, home=None):
     st.session_state[KEY] = prof
     if prof['home'] != old_home:
         _reset_place_search()
-    if LOCAL:
+    if on_disk():
         _write_disk(prof)
 
 
@@ -113,13 +159,13 @@ def _reset_place_search():
 
 def friends():
     if FKEY not in st.session_state:
-        raw = _read_json('friends.json', []) if LOCAL else []
+        raw = _read_json('friends.json', []) if on_disk() else []
         st.session_state[FKEY] = [f for f in (_friend_from_store(x) for x in raw) if f]
     return st.session_state[FKEY]
 
 
 def _store_friends():
-    if LOCAL:
+    if on_disk():
         _write_json('friends.json', [dict(id=f['id'], name=f['name'], birth=f['birth'],
                                           avatar=base64.b64encode(f['avatar']).decode() if f['avatar'] else None)
                                      for f in friends()])
@@ -406,8 +452,16 @@ def personal(base, name_form):
 
 
 def to_avatar(file_bytes):
-    """Picture -> square PNG, AVATAR_PX pixels, turned upright from the camera's EXIF."""
+    """Picture -> square PNG, AVATAR_PX pixels, turned upright from the camera's EXIF.
+    Raises ValueError (plain message) for a picture with an absurd number of pixels."""
     im = Image.open(io.BytesIO(file_bytes))
+    if im.format == 'JPEG':
+        im.draft('RGB', (4 * AVATAR_PX, 4 * AVATAR_PX))   # decode a large photo at a reduced size straight away
+    w, h = im.size
+    if w * h > MAX_PIXELS:
+        raise ValueError(f'That picture is too large ({w:,} x {h:,} pixels). Please choose one under '
+                         f'{MAX_PIXELS // 1_000_000} million pixels.')
+    im.thumbnail((4 * AVATAR_PX, 4 * AVATAR_PX))
     im = ImageOps.exif_transpose(im).convert('RGB')
     s = min(im.size)
     left, top = (im.width - s) // 2, (im.height - s) // 2
@@ -566,7 +620,11 @@ def _decode_code(text):
     for b in cands:
         b = b.rstrip('=')
         try:
-            raw = zlib.decompress(base64.urlsafe_b64decode(b + '=' * (-len(b) % 4)), bufsize=65536).decode('utf-8')
+            z = zlib.decompressobj()            # at most MAX_CARD_KB of text, however the code was made
+            raw = z.decompress(base64.urlsafe_b64decode(b + '=' * (-len(b) % 4)), MAX_CARD_KB * 1024)
+            if z.unconsumed_tail:
+                continue
+            raw = raw.decode('utf-8')
             json.loads(raw)
             return raw
         except Exception:
@@ -583,6 +641,9 @@ def parse_card(data):
         text = data.decode('utf-8', errors='replace').strip()
     else:
         text = str(data).strip()
+        if len(text) > MAX_CODE_CHARS:
+            raise ValueError('That text is far too long to be a friend card code. Copy only the code (it starts '
+                             'with LILLY1:), or ask your friend for the .lillycard file.')
     if not text.lstrip().startswith('{'):          # not a card file: look for a LILLY1: code (any case, any spacing)
         decoded = _decode_code(text)
         if decoded is not None:
@@ -635,6 +696,8 @@ def edit_dialog():
         else:
             try:
                 new_av = to_avatar(data)
+            except ValueError as e:
+                err = str(e)
             except Exception:
                 err = 'That file could not be read as a picture. Please try a JPG or PNG.'
     if err:
@@ -700,8 +763,12 @@ def edit_dialog():
         st.caption(f"{hh['name']}, {hh['country']} · {hh['lat']:.3f}°, {hh['lon']:.3f}° · {home['elev']:.0f} m · "
                    f"time zone {hh['tz']}. Not included in your friend card.")
     remember = None
-    if LOCAL:
-        st.caption('On this computer your profile is saved in the app\'s "profile" folder and never leaves it.')
+    if on_disk():
+        st.caption('On this computer your profile is saved in your own user folder (%LOCALAPPDATA%\\TheSiderealOracle'
+                   '\\profile) and never leaves it.')
+    elif LOCAL:
+        st.caption('This app is shared from another computer: your profile is kept only while this page is open, '
+                   'and nothing is saved on that computer.')
     elif device_available():
         remember = st.checkbox('Remember me on this device', value=remembered(), key='pf_remember',
                                help='Keeps your profile and friends in this browser, on this phone, tablet or computer '

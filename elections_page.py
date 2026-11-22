@@ -83,6 +83,7 @@ if go:
         st.session_state['e_result'] = (params, compute(*params))
 if 'e_result' not in st.session_state:
     st.info(f'Choose the undertaking, the dates and the place {device.where_inputs()}, then press **Find auspicious times**.')
+    user_profile.page_end()
     st.stop()
 p_used, (res, bands, q) = st.session_state['e_result']
 if p_used != params:

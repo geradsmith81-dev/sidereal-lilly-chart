@@ -216,6 +216,7 @@ if not FULL:
     st.caption("Simple view. Switch on **Full view** in the sidebar for Lilly's tables of points, the planets in his "
                'words, the aspects and the sources.' + (' (On a phone, open the sidebar with the arrow at the top left.)'
                                                          if PHONE else ''))
+    user_profile.page_end()
     st.stop()
 
 st.subheader("The planets in Lilly's words")

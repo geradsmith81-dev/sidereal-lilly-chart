@@ -1,8 +1,14 @@
 [server]
+maxUploadSize = 16
+fileWatcherType = "none"
+runOnSave = false
 headless = true
 
 [browser]
 gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
 
 # The app is always dark (user request). The same dark "Lagoon" colours are given for Streamlit's light and dark
 # themes too, so the screen stays dark whatever the visitor's phone or computer is set to, and whatever is chosen

@@ -57,11 +57,15 @@ import user_profile
 st.set_page_config(page_title='The Sidereal Oracle', layout='wide',
                    # the app icon (an astrolabe): browser tab, the app window's title bar and taskbar button
                    page_icon=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'lilly_icon.png'))
+import desktop as dk  # noqa: E402  (desktop-only controls; inert on the hosted copy)
+
+dk.require_password(st)
 try:
     import sidereal_engine  # noqa: F401  (loads, or on first start downloads, the JPL file)
 except Exception as e:          # e.g. first start without internet: de440s.bsp cannot be downloaded
     st.error('The NASA JPL planetary data file (de440s.bsp, about 32 MB) could not be loaded or downloaded. '
              'Check the internet connection and reload the page. Details: ' + str(e))
+    user_profile.page_end()
     st.stop()
 import theme
 import device
@@ -105,3 +109,5 @@ except AttributeError as e:
              f"(bottom right) > the three dots > **Reboot app**.\n\n"
              f"**On your computer:** copy all the files from the newest zip into the app folder, choosing "
              f"**Replace**, and start the app again.")
+# desktop copy only: "Quit" and "Clear stored data" at the bottom of every page (pages that end early call it too)
+user_profile.page_end()
