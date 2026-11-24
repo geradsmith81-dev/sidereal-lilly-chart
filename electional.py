@@ -164,6 +164,7 @@ def judge(rows, bands, cusps, stars, sun_up, kind, hour_ruler, rules, beams_rule
     by = {r['body']: r for r in rows}
     items = []     # (rule_id, text, points, source, kind)
     plains = []    # the same lines in plain English (data/election_rules.csv, column 'plain')
+    crudes = []    # the same lines in the Foul-Mouthed voice (column 'crude'; voice.py applies the swear filter)
 
     def add(rid, **kw):
         if rid in rules.index:
@@ -171,6 +172,8 @@ def judge(rows, bands, cusps, stars, sun_up, kind, hour_ruler, rules, beams_rule
             items.append((rid, r['text'].format(**kw), float(r['points']), r['source'], r['kind']))
             pl = r.get('plain')
             plains.append((pl if isinstance(pl, str) and pl.strip() else r['text']).format(**kw))
+            cr = r.get('crude')
+            crudes.append(cr.format(**kw) if isinstance(cr, str) and cr.strip() else plains[-1])
 
     lord1 = R['lord_of_asc']
     cm = R['cusp_signs'][u['house'] - 1]
@@ -273,7 +276,7 @@ def judge(rows, bands, cusps, stars, sun_up, kind, hour_ruler, rules, beams_rule
     avoid = any(k == 'avoid' for *_, k in items)
     score = sum(p for _, _, p, _, k in items if k != 'avoid')
     plain = [(it[0], t, it[2], it[4]) for it, t in zip(items, plains)]     # (rule_id, plain text, points, kind)
-    return dict(score=round(score, 1), avoid=avoid, items=items, plain=plain, R=R, lord1=lord1, lordm=lordm)
+    return dict(score=round(score, 1), avoid=avoid, items=items, plain=plain, crude=crudes, R=R, lord1=lord1, lordm=lordm)
 
 
 # ------------------------------------------------------------------ scanning a period
@@ -319,7 +322,7 @@ def scan_many(kinds, lat, lon, elev, tzinfo, start_date, days, day_start=7, day_
         for kind in kinds:
             j = judge(rows, bands, cusps, stars, sun_up, kind, hour_r, rules, beams_rule, R=R)
             out[kind].append(dict(local=lt.replace(tzinfo=None), utc=ut, date=lt.date(), time=lt.strftime('%H:%M'),
-                                  score=j['score'], avoid=j['avoid'], items=j['items'], day_ruler=day_r, hour_ruler=hour_r,
+                                  score=j['score'], avoid=j['avoid'], items=j['items'], crude=j['crude'], day_ruler=day_r, hour_ruler=hour_r,
                                   rising=j['R']['asc']['constellation'], lord1=j['lord1'], lordm=j['lordm'],
                                   moon=j['R']['planets'][6]['constellation'], pos=pos))
         if progress and i % 40 == 0:

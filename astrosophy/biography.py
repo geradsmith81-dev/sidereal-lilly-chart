@@ -254,8 +254,13 @@ def notes_table(birth_utc, notes) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+MAX_NOTES_BYTES = 2 * 1024 * 1024     # 84 years of notes fill well under 1 MB
+
+
 def read_notes_csv(data: bytes) -> dict:
     """Notes from a CSV saved by this app (or edited in Excel). Raises ValueError with a plain message."""
+    if len(data) > MAX_NOTES_BYTES:
+        raise ValueError("That file is too large to be a notes file from this app (more than 2 MB).")
     try:
         df = pd.read_csv(io.BytesIO(data), encoding="utf-8-sig", dtype=str).fillna("")
     except Exception:

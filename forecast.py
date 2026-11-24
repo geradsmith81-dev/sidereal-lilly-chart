@@ -110,7 +110,9 @@ def build(R, rows, bands, ph, rules_csv=None):
         if rid in rules.index:
             r = rules.loc[rid]
             plain = r['plain'] if 'plain' in rules.columns and isinstance(r['plain'], str) and r['plain'].strip() else r['text']
+            crude = r['crude'] if 'crude' in rules.columns and isinstance(r['crude'], str) and r['crude'].strip() else plain
             out[r['kind']].append(dict(id=rid, text=r['text'].format(**kw), plain=plain.format(**kw),
+                                       crude=crude.format(**kw),      # the Foul-Mouthed wording (voice.py filters it)
                                        source=r['source'], basis=r['basis']))
 
     P = {p['planet']: p for p in R['planets']}

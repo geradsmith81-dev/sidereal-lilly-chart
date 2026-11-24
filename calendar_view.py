@@ -12,7 +12,8 @@ import theme
 
 PAL = theme.PALETTE
 GRADE_COL = theme.GRADE_COLOURS
-GRADE_TXT = {'best': 'Best', 'good': 'Good', 'fair': 'Fair', 'avoid': 'Avoid'}
+import voice
+GRADE_TXT = voice.GRADE_TXT      # 'Best' ... or 'Top notch' ..., by the 'How sassy?' level
 
 
 @st.cache_data(show_spinner=False, max_entries=8, ttl=3600)

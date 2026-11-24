@@ -4,6 +4,7 @@ import datetime as dt
 import html
 import os
 import pandas as pd
+import sys
 import streamlit as st
 
 import electional as el
@@ -13,6 +14,7 @@ import inputs
 import places
 import user_profile as upf
 import device
+import voice
 from calendar_view import GRADE_TXT, compute, heatmap, reasons, day_list
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -41,8 +43,10 @@ else:
         pic = st.checkbox('Include my picture in the card file', value=True, key='fr_pic')
         q_, a, b = st.columns(3)
         with q_.popover('Show a QR code', icon=':material/qr_code_2:', width='stretch'):
-            st.markdown('**Let a friend scan this with their phone camera.** It opens The Sidereal Oracle and offers '
-                        'to add you to their friends.')
+            st.markdown('**Let a friend scan this with their phone camera.** It opens '
+                        + ('The Sidereal Oracle' if upf.APP_URL else
+                           'The Sidereal Oracle online (this app has no web address of its own yet; it reads the same '
+                           'cards)') + ' and offers to add you to their friends.')
             try:
                 st.image(upf.card_qr_png(), width=280)
             except Exception as e:                    # e.g. qr_code.py not uploaded
@@ -138,9 +142,7 @@ for fr in friends:
     if c2.button('Remove', key='rm_' + fr['id'], width='stretch'):
         upf.remove_friend(fr['id'])
         st.rerun()
-st.caption('Saved on this computer in your own user folder (%LOCALAPPDATA%\\TheSiderealOracle\\profile).'
-           if upf.on_disk() else
-           'Kept only while this page is open (the app is shared from another computer).' if upf.LOCAL else
+st.caption('Saved on this computer in the app\'s "profile" folder.' if upf.LOCAL else
            ('Remembered on this device (with your profile). Keep their card files to add them on other devices.'
             if getattr(upf, 'remembered', lambda: False)() else
             'Online, friends are kept only while the app is open, unless you tick "Remember me on this device" in '
@@ -150,7 +152,6 @@ st.caption('Saved on this computer in your own user folder (%LOCALAPPDATA%\\TheS
 st.subheader('4 · Compare and combine')
 if not (me['birth'] and friends):
     st.info('To compare, you need your own birth details in your profile and at least one friend.')
-    upf.page_end()
     st.stop()
 fi = st.selectbox('Friend', range(len(friends)), format_func=lambda i: friends[i]['name'], key='fr_pick')
 fr = friends[fi]
@@ -174,6 +175,10 @@ with st.container(border=True):
                'Part of Fortune of the two nativities; the same sign, trine or sextile make for friendship, square or '
                'opposition for discord, and harmony between one\'s Sun and the other\'s Moon is the strongest bond (counted double). '
                'Orb and points are app choices (data/natal_rules.csv).')
+    if getattr(sys.modules.get('school'), 'is_ptolemy', lambda: False)():
+        st.caption("This comparison is Ptolemy's own rule in both readings ([Tetrabiblos IV.7, Loeb p.413]"
+                   "(https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Ptolemy/Tetrabiblos/4B*.html#p413)). "
+                   "The times good for both use Lilly's election rules, because Ptolemy wrote none.")
 
 st.markdown('#### Auspicious times for both of you')
 with st.container(border=True):
@@ -202,10 +207,9 @@ with st.container(border=True):
 
 params = (kind, lat, lon, elev, tzkey, start, days, h0, h1, step, 'table', fr['id'])
 if go:
-    with st.spinner('Judging every moment for both of you ... (about 20 seconds per month)'):
+    with st.spinner(voice.loading('') + ' Judging every moment for both of you ... (about 20 seconds per month)'):
         st.session_state['fr_result'] = (params, compute(*params[:-1]))
 if 'fr_result' not in st.session_state or st.session_state['fr_result'][0][-1] != fr['id']:
-    upf.page_end()
     st.stop()
 p_used, (res, bands, _) = st.session_state['fr_result']
 if p_used != params:
@@ -235,7 +239,7 @@ if W:
                                     To=(w['end'] + dt.timedelta(minutes=step)).strftime('%H:%M'), Grade=GRADE_TXT[w['grade']],
                                     **{'For both': w['score'], f'For {my_name}': w['peak']['score_a'],
                                        f"For {fr['name']}": w['peak']['score_b']},
-                                    **{'Main reasons': reasons(w['peak']['items'])}) for w in W[:20]]),
+                                    **{'Main reasons': reasons(voice.items(w['peak']))}) for w in W[:20]]),
                  ['Date', 'From', 'Grade', 'For both'])
 else:
     st.info('No Good or Best windows for both in this period. Try more days or more hours.')

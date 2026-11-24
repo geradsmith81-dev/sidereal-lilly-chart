@@ -75,7 +75,7 @@ def require_password(st):
     if not pw or client_is_local(st) or st.session_state.get('_dk_auth'):
         return
     st.markdown('### The Sidereal Oracle is shared from another computer')
-    st.write('Enter the password shown in the The Sidereal Oracle window on that computer.')
+    st.write('Enter the password shown in The Sidereal Oracle sharing window on that computer.')
     with st.form('dk_pw', clear_on_submit=True):
         given = st.text_input('Password', type='password')
         ok = st.form_submit_button('Open The Sidereal Oracle')
@@ -204,8 +204,8 @@ def cache_dirs():
 # ------------------------------------------------------------------------------------------
 # the controls shown at the bottom of the page on the desktop copy
 # ------------------------------------------------------------------------------------------
-CLEAR_TITLE = 'saved profile, picture and friend cards'
-CLEAR_TEXT = 'Your profile (name, picture, birth details and home town) and the friend cards you have added are kept in your user folder on this computer, so they are there next time. Clear them before you lend or hand on this computer.'
+CLEAR_TITLE = 'saved profile, picture, friends and Biography notes'
+CLEAR_TEXT = 'Your saved profile (name, picture, birth details and where you live), your friends and your Biography chart notes are kept on this computer. Clear them before you lend or hand on this computer.'
 
 
 def desktop_controls(st, on_cleared=None):
@@ -224,7 +224,7 @@ def desktop_controls(st, on_cleared=None):
                 st.success(f'Removed {n:,} stored files ({b / 1e6:,.1f} MB).')
         st.caption(f"The Sidereal Oracle's data folder on this computer: {data_dir()}")
         if is_sharing():
-            st.caption('The Sidereal Oracle is shared on this network. Close the The Sidereal Oracle window with the password '
+            st.caption('The Sidereal Oracle is shared on this network. Close the sharing window (the one with the password) '
                        'to stop sharing.')
         if st.button('Quit The Sidereal Oracle', key='dk_quit', type='primary'):
             st.info('The Sidereal Oracle has stopped. You can close this window.')

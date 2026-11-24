@@ -1,16 +1,42 @@
-# Third-party material in The Sidereal Oracle
+# Third-party notices
 
-The MIT License in `LICENSE` covers the code and texts written for this app. The material below
-belongs to others and keeps its own terms; the MIT License does not apply to it.
+The MIT License in `LICENSE` covers the program code of The Sidereal Oracle and the wording written for it
+(including the optional rude wording, the punchlines and the plain-English texts). It does **not** cover the material below,
+which keeps its own terms. Full references are in `data/sources.csv` (shown on the About page) and, for the
+Astrosophy Birth Chart page, in `astrosophy/data/sources.csv`.
 
-| What | Where in this app | Terms and credit |
-| --- | --- | --- |
-| Lagoon Nebula image, "Hubble's 28th birthday picture" (heic1808a), 2018 | `assets/background.jpg`, `assets/background_phone.jpg` (cropped and resized) | Credit: **NASA, ESA, STScI**. [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/). Source: https://esahubble.org/images/heic1808a/ |
-| William Lilly, *Christian Astrology* (London, 1647) | Quotations and page references in `data/*.csv` and `glossary.py` | Public domain. Wellcome Library copy, Internet Archive item b30338724 (Public Domain Mark): https://archive.org/details/b30338724 |
-| JPL planetary ephemeris DE440s | `ephem/de440s.bsp` (in the desktop version; downloaded from JPL on first start otherwise) | Produced by NASA's Jet Propulsion Laboratory. Park, Folkner, Williams & Boggs (2021), AJ 161:105. https://ssd.jpl.nasa.gov/planets/eph_export.html |
-| Hipparcos Catalogue positions (Regulus, Spica, Algol) | `data/fixed_stars.csv` | ESA (1997), The Hipparcos Catalogue. |
-| IAU constellation boundaries (Delporte 1930) | via the Skyfield package | Used through Skyfield's constellation lookup (Roman 1987). |
-| GeoNames place names | via the geonamescache package (not stored in this repository) | GeoNames, [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/). https://www.geonames.org |
-| Python packages listed in `requirements.txt` (Streamlit, Skyfield, NumPy, pandas, Matplotlib, Pillow, geonamescache, tzdata) | installed separately | Each under its own open-source license. |
+## Texts quoted or tabulated
 
-The app shows these credits on its About page and in the sidebar, as the CC BY 4.0 licences require.
+- **William Lilly, *Christian Astrology* (London, 1647).** Public domain. Quoted from the Wellcome Library copy
+  (Internet Archive item b30338724, Public Domain Mark).
+- **Ptolemy, *Tetrabiblos*, translated by F. E. Robbins (Loeb Classical Library, 1940).** In the public domain in the
+  United States (copyright not renewed); it may still be protected in other countries. Quoted from the transcription
+  by Bill Thayer on LacusCurtius.
+- **Astrosophy Birth Chart page (folder `astrosophy`).** Readings after Rudolf Steiner, Elisabeth Vreede and
+  Willi Sucher, and the life chart after George and Gisela O'Neil, *The Human Life* (ed. Florin Lowndes, Mercury
+  Press, 1990), drawn afresh. See `astrosophy/data/sources.csv`.
+
+## Data and images
+
+- **NASA JPL DE440s ephemeris** (downloaded on first start, not stored in this repository), used through the
+  Skyfield library.
+- **Hipparcos Catalogue** (ESA 1997): positions and proper motions of Regulus, Spica and Algol (`data/fixed_stars.csv`).
+- **IAU constellation boundaries** (Delporte 1930), through Skyfield's constellation lookup (Roman 1987).
+- **GeoNames** place names (via the geonamescache package): Creative Commons Attribution 4.0 (CC BY 4.0).
+- **Elevation:** Terrain Tiles on the AWS Registry of Open Data (Mapzen/Tilezen), and the Open-Meteo Elevation API
+  (CC BY 4.0; Copernicus DEM GLO-90, © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018, provided
+  under COPERNICUS by the European Union and ESA).
+- **Background image:** Hubble's image of the Lagoon Nebula (heic1808a). Credit: NASA, ESA, STScI. Creative Commons
+  Attribution 4.0 International (CC BY 4.0).
+- **Wiktionary**, Category:English idioms (CC BY-SA 4.0): headwords only were used as a check; no definitions were
+  copied.
+
+## Inspiration
+
+The idea of the optional rude reading (shared with The Foul-Mouthed Oracle) comes from joke weather apps such as WTForecast, CARROT Weather and Dirty Weather; every
+line was written for this app. Not affiliated with or endorsed by the makers of these apps.
+
+## Software
+
+The app runs on open-source packages listed in `requirements.txt` (among them Streamlit, Skyfield, NumPy, pandas
+and Matplotlib), each under its own license.

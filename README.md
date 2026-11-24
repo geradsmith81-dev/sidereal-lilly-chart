@@ -1,4 +1,4 @@
-# Sidereal Oracle · William Lilly's reading
+# The Sidereal Oracle
 
 A sidereal star chart on the real IAU constellations (13 ecliptic bands at their true widths, NASA JPL DE440s
 positions via Skyfield), read through William Lilly's *Christian Astrology* (London, 1647): essential dignities
@@ -6,12 +6,26 @@ positions via Skyfield), read through William Lilly's *Christian Astrology* (Lon
 orbs (p.107) and his "Considerations before Judgment" (pp.121-123). Every table is a CSV in `data/` with page
 citations; adaptations to the unequal IAU bands are listed in `data/uncertainty_log.csv`.
 
+## Readings, pages and voices
+
+* **Whose reading?** (sidebar): William Lilly's *Christian Astrology* (1647, the default) or Ptolemy's *Tetrabiblos*
+  (F. E. Robbins's Loeb translation, 1940), with chapter references (`school.py`, `ptolemy_layer.py`,
+  `ptolemy_forecast.py`, `data/ptolemy_*.csv`).
+* **Five pages:** Chart, Auspicious dates, Astrosophy Birth Chart (folder `astrosophy`, with its own `data`), Friends
+  and About.
+* **Voices** (`voice.py`, the same as The Foul-Mouthed Oracle's): **How sassy?** Polite (the default) · Clean · Some ·
+  Full, and **Who's talking?** Friendly (the default) · Snarky · Doom-monger, which is off in Polite. The rude wording
+  is in the column `crude` of `data/forecast_rules.csv`, `data/election_rules.csv` and `data/ptolemy_rules.csv`, and
+  the punchlines are in `data/punchlines.csv`. Lilly's and Ptolemy's own words are never changed.
+* **Where you live:** typed in, or filled in with **Use my location** (the browser's location, with permission).
+  Ground height comes from AWS Terrain Tiles, with the Open-Meteo Elevation API as the fallback.
+
 ## Look
 
 Colour scheme "Lagoon" (`theme.py`), taken from the background image: Hubble's 28th-anniversary picture of the Lagoon Nebula (heic1808a), credit NASA, ESA, STScI, [CC BY 4.0](https://esahubble.org/images/heic1808a/). The credit is shown in the sidebar on every page
 generated in code (`assets/background.jpg`). Text contrast is at least 4.5:1 throughout.
 
-## Two pages
+## Chart and Auspicious dates
 
 * **Chart**: the chart for one moment, with Lilly's dignities, scores, aspects and Forecast. The button *What does
   this mean? (plain English)* opens a window that restates the Forecast without technical terms and grades the moment
@@ -36,7 +50,7 @@ A profile box in the sidebar takes a name, a picture and birth details, and a ho
 In this online version the profile is kept **only in the visitor's browser session**, unless the visitor ticks
 **Remember me on this device**: then the profile and friends are also kept in that browser's `localStorage` (pictures as
 small JPEGs), via a small `st.components.v2` component, and filled in again on the next visit. **Forget me on this
-device** deletes the stored copy. Nothing is written to the server, which all visitors share. The Windows desktop version (started with `Start app.bat`)
+device** deletes the stored copy. Nothing is written to the server, which all visitors share. The Windows desktop version (started from its icon or `Start app.pyw`)
 saves it in the user's own data folder, `%LOCALAPPDATA%\TheSiderealOracle\profile`, instead; when the desktop version is
 shared on a local network, only the person at that computer uses the saved profile.
 
@@ -79,7 +93,7 @@ See **DEPLOY GUIDE.txt** for step-by-step instructions. In short:
 
 1. On github.com create a new repository and choose **Add file → Upload files**.
 2. Drag the *contents* of this folder (not the folder itself) into the page, so that `app.py` sits at the top level.
-   Make sure the `.streamlit`, `assets`, `data` and `ephem` folders come along.
+   Make sure the `.streamlit`, `assets`, `astrosophy`, `data`, `ephem` and `web` folders come along.
 3. On share.streamlit.io: **Create app → Yup, I have an app**, choose the repository, branch `main`,
    main file `app.py`, and under *Advanced settings* pick **Python 3.12**. Deploy.
 4. The first start takes about a minute longer: the app downloads the NASA JPL file `de440s.bsp` (32 MB).
@@ -123,9 +137,10 @@ JPL, Hipparcos and GeoNames data) keeps its own terms: see [THIRD-PARTY-NOTICES.
 
 ## Security and privacy
 
-- The Windows desktop copy of The Sidereal Oracle listens on this computer only (127.0.0.1). "Share on this network.bat" can open it to the local network, protected by a new password each time; only the person at the computer sees Quit and data-clearing controls.
+- The Windows desktop copy of The Sidereal Oracle listens on this computer only (127.0.0.1). "Share on this network.pyw" can open it to the local network, protected by a new password each time; only the person at the computer sees Quit and data-clearing controls.
+- The desktop copy never opens a command window: it is started with `pythonw.exe` through `.pyw` files and the Desktop icon, setup shows a small progress window, sharing shows the address and password in a small window instead of a console, and every helper program runs hidden (`tools/bootstrap.py`, `tools/launch.py`, `tools/share_window.pyw`).
 - The desktop copy keeps its data and logs in `%LOCALAPPDATA%\TheSiderealOracle`, checks its program files against `MANIFEST.sha256` at every start, and each release publishes SHA-256 checksums of its zips in `SHA256SUMS.txt`.
 - All components are pinned to exact versions and installed with `--require-hashes`.
 - The desktop-only code (`desktop.py`) does nothing on a hosted copy: no Quit button is shown there.
 - The online copy writes nothing to the server: profiles stay in the visitor's browser session, or in that browser's own storage if the visitor ticks *Remember me on this device*.
-- Uploaded pictures are limited to 15 MB and 50 million pixels and are re-encoded; friend cards are limited to 1 MB, and pasted card codes are size-checked before they are unpacked.
+- Uploaded pictures are limited to 15 MB and 40 million pixels and are re-encoded; friend cards and pasted card codes are limited to 1 MB and size-checked before they are unpacked.

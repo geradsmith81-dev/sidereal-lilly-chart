@@ -6,6 +6,7 @@ import os
 from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
+import sys
 import streamlit as st
 from matplotlib.figure import Figure
 from matplotlib.colors import ListedColormap
@@ -19,12 +20,14 @@ import user_profile
 import natal
 import theme
 import device
+import voice
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 from calendar_view import PAL, GRADE_COL, GRADE_TXT, compute, heatmap, reasons, day_list
 
 
-user_profile.title('Auspicious dates · elections after William Lilly', '{who} auspicious dates · elections after William Lilly')
+user_profile.title(voice.say('Auspicious dates · when to get shit done', 'Auspicious dates · elections after William Lilly'),
+                   voice.say('{who} auspicious dates · when to get shit done', '{who} auspicious dates · elections after William Lilly'))
 PHONE = device.phone()
 
 # ---------------- inputs (a fold-out panel at the top on a phone, open until the first search) ----------------
@@ -71,6 +74,9 @@ if U.get('note'):                  # how the undertaking may be read (user's wor
 with st.container(border=True):
     st.markdown(f"**How this undertaking is judged.** {U['why']} The moment is judged for the Lord of the Ascendant "
                 f"(the person who begins), the lord of the {ll._ord(U['house'])} house (the matter), {U['natural']} and the Moon.")
+    if getattr(sys.modules.get('school'), 'is_ptolemy', lambda: False)():
+        st.info("You have chosen **Ptolemy's reading**. The Tetrabiblos has no rules for choosing a time to begin "
+                "something, so this page uses William Lilly's election rules in both readings.")
     st.caption('Lilly wrote no separate book of elections. In his epistle he says that whoever has studied his book will be '
                '"able (ad libitum) to frame his owne Figure of Elections, let the quere be what it will". This page frames '
                'them from his rules: perfection of the significators (ch. XXI, pp.124-126), their strength (p.115), and his '
@@ -79,11 +85,10 @@ with st.container(border=True):
 
 params = (kind, lat, lon, elev, tzkey, start, days, h0, h1, step, beams_rule)
 if go:
-    with st.spinner(f'Judging {days * len(range(h0 * 60, min(h1 * 60, 24 * 60 - 1) + 1, step)):,} moments ... (about 20 seconds per month)'):
+    with st.spinner(voice.loading('') + f' Judging {days * len(range(h0 * 60, min(h1 * 60, 24 * 60 - 1) + 1, step)):,} moments ... (about 20 seconds per month)'):
         st.session_state['e_result'] = (params, compute(*params))
 if 'e_result' not in st.session_state:
     st.info(f'Choose the undertaking, the dates and the place {device.where_inputs()}, then press **Find auspicious times**.')
-    user_profile.page_end()
     st.stop()
 p_used, (res, bands, q) = st.session_state['e_result']
 if p_used != params:
@@ -118,7 +123,7 @@ else:
                              To=(w['end'] + dt.timedelta(minutes=step)).strftime('%H:%M'), Grade=GRADE_TXT[w['grade']],
                              Score=w['score'], Rising=w['peak']['rising'],
                              **{'Day / hour': f"{w['peak']['day_ruler']} / {w['peak']['hour_ruler']}"},
-                             **{'Main reasons': reasons(w['peak']['items'])}) for w in top])
+                             **{'Main reasons': reasons(voice.items(w['peak']))}) for w in top])
     device.table(tab, ['Date', 'From', 'To', 'Grade'])
 
     st.subheader('Look closer at a window')
@@ -165,7 +170,7 @@ for dte, rs in sorted(by_day.items()):
     if ok:
         b = max(ok, key=lambda r: r['score'])
         drows.append(dict(Date=f"{dte:%a %d %b}", **{'Best time': b['time']}, Grade=GRADE_TXT[b['grade']], Score=b['score'],
-                          **{'Avoid share': f"{1 - len(ok) / len(rs):.0%}"}, Note=reasons(b['items'], n=2)))
+                          **{'Avoid share': f"{1 - len(ok) / len(rs):.0%}"}, Note=reasons(voice.items(b), n=2)))
     else:
         from collections import Counter
         c = Counter(t.split(':')[0] for r in rs for _, t, _, _, k in r['items'] if k == 'avoid').most_common(1)
@@ -188,6 +193,6 @@ with st.expander('Sources and certainty (elections)'):
     st.markdown("Each rule carries its source in Lilly and a **basis**: *sourced* (Lilly's own rule), *sourced in substance* "
                 "(Lilly's doctrine, the app's wording), or *app rule*. The point values are app choices. Lilly built his "
                 "judgments on the balance of testimonies, not on a fixed formula.")
-    device.table(pd.read_csv(os.path.join(HERE, 'data', 'election_rules.csv'), encoding='utf-8'))
+    device.table(voice.rules_table(pd.read_csv(os.path.join(HERE, 'data', 'election_rules.csv'), encoding='utf-8')))
     st.caption('This is traditional symbolism, offered for study and reflection; controlled studies have not found '
                'astrological timing to affect outcomes.')

@@ -62,7 +62,7 @@
     <img src="/icons/apple-touch-icon.png" alt="" style="width:72px;height:72px;border-radius:16px">
     <h1>Privacy policy</h1>
     <p class="sub">The Sidereal Oracle (website siderealoracle.com and the Android app com.siderealoracle.app)<br>
-       Effective 11 November 2026</p>
+       Effective 24 November 2026</p>
   </div>
 
   <h2>In short</h2>
@@ -72,6 +72,7 @@
   <h2>What you may enter</h2>
   <ul>
     <li>A date, time and place for a chart, and optionally the elevation of the place.</li>
+    <li>Optionally, your device&rsquo;s position, if you press <b>Use my location</b>.</li>
     <li>Optionally, a profile: your name, a picture, your birth date, birth time and birthplace, and the place where you live.</li>
     <li>Optionally, friends: the same details for people who have sent you their friend card.</li>
   </ul>
@@ -86,6 +87,17 @@
      server and sent back to your device.</p>
   <p>To make repeat views faster, a calculated chart (a time and a place, with no name attached) may stay in the
      server&rsquo;s memory for up to one hour. Restarting the server clears it.</p>
+
+  <h2>Your location and ground height</h2>
+  <p><b>Use my location</b> (in your profile, under <i>Where you live</i>) asks your phone or computer for its position.
+     The profile window asks once by itself when no home place is set yet, and again whenever you press the button.
+     Your browser asks your permission first, and you can always type a town instead. The position is rounded to
+     about 10 metres and used only to fill in where you live; the nearest town gives its name and time zone. The app
+     never tracks you and never reads your position in the background.</p>
+  <p>To set the ground height (elevation) of a place you choose, the server looks it up in public elevation maps:
+     the Terrain Tiles of the AWS Registry of Open Data, and over water or when those cannot be reached, the
+     Open-Meteo Elevation API. Only the place&rsquo;s coordinates (or the map tile that contains them) are sent, from the
+     app&rsquo;s server, never with your name or birth details.</p>
 
   <h2>What stays on your device</h2>
   <ul>

@@ -16,8 +16,8 @@ PART A. UNZIP THE FILES
 1. Right-click "SiderealLillyApp_github.zip" > "Extract All..." > "Extract".
 2. Windows opens a folder called  SiderealLillyApp_github . Inside it is a
    second folder,  sidereal-lilly-chart . Double-click it to go inside.
-3. You should now see 26 items: 4 folders (.streamlit, assets, data, ephem)
-   and 22 files, including app.py and requirements.txt.
+3. You should now see 42 items: 6 folders (.streamlit, assets, astrosophy, data, ephem, web)
+   and 36 files, including app.py, voice.py and requirements.txt.
    THIS is the window you will drag from in Part C. Leave it open.
 
 
@@ -40,16 +40,16 @@ PART C. UPLOAD THE FILES (the step most often done wrong)
 1. The new, empty repository shows a "Quick setup" box. In it, click the
    blue link  "uploading an existing file".
 2. Go to the window from Part A (the inside of sidereal-lilly-chart).
-   Click once on an empty spot in it, press Ctrl+A to select all 26 items,
+   Click once on an empty spot in it, press Ctrl+A to select all 42 items,
    then DRAG them onto the GitHub page and let go over the large box
    "Drag files here to add them to your repository".
    - Drag the CONTENTS, not the folder sidereal-lilly-chart itself.
    - Do not use the "choose your files" link: it cannot upload folders.
 3. Wait until the list of files below the box stops growing. It should
-   list 40 files, among them:
+   list 89 files, among them:
        .streamlit/config.toml
        assets/background.jpg      assets/background_phone.jpg   assets/lilly_icon.png
-       data/... (13 files ending in .csv)
+       data/... (20 files ending in .csv)
        ephem/.gitkeep
        app.py   requirements.txt   README.md
    If .streamlit/config.toml is missing, carry on and see "IF THE COLOURS
@@ -58,7 +58,7 @@ PART C. UPLOAD THE FILES (the step most often done wrong)
    "First upload". Leave "Commit directly to the main branch" selected and
    click the green "Commit changes" button. Wait for the page to reload.
 5. CHECK: the repository's front page should now list the folders
-   .streamlit, assets, data and ephem, and the file app.py, directly - not
+   .streamlit, assets, astrosophy, data, ephem and web, and the file app.py, directly - not
    inside another folder. If instead you see ONE folder called
    sidereal-lilly-chart (or SiderealLillyApp_github), the folder itself was
    dragged. The easiest fix is to start again: open "Settings" (top of the
@@ -138,7 +138,7 @@ LATER CHANGES (when you get new zips from me)
 ---------------------------------------------
 1. Unzip the new SiderealLillyApp_github.zip as in Part A.
 2. On github.com open your repository > "Add file" > "Upload files".
-3. Drag in ALL 26 items again, exactly as in Part C. Files with the same
+3. Drag in ALL 42 items again, exactly as in Part C. Files with the same
    name are replaced; the others are left alone. Click "Commit changes".
 4. Streamlit notices the change and updates the app within a minute or two.
 5. To be sure the app uses all the new files, restart it once: open the

@@ -59,8 +59,14 @@ def page_css():
 
 
 def voice_note():
-    """(The Foul-Mouthed Oracle puts a line in its own voice here.)"""
-    return None
+    """One line in the app's voice: this page keeps the sources' own, polite wording (no line at the Polite level)."""
+    import voice
+    line = voice.say("Fair warning: the swearing takes a break on this page. These readings are Steiner's, Vreede's "
+                     "and Sucher's, each tagged with its source, and stuffing f-bombs into a dead man's mouth would "
+                     "be a shit move. Same real sky, same NASA JPL numbers, and the same honesty note: nobody has "
+                     "shown that a birth chart predicts a damn thing.", None)
+    if line:
+        st.markdown(f"<div class='foul-punch'>{line}</div>", unsafe_allow_html=True)
 
 
 MONTHS = list(calendar.month_name)[1:]
@@ -357,7 +363,7 @@ neighbouring constellation (e.g. the Moon in Orion, Pluto in Cetus), the app not
 **Honesty note.** The calculations show where the bodies really are. The meanings are a spiritual tradition.
 Controlled studies have not found that birth charts predict personality or life events.
 
-**Your information.** This page uses the same profile as the rest of the app. On your computer (Start app.bat)
+**Your information.** This page uses the same profile as the rest of the app. On your computer (the desktop app)
 your profile is saved in the app's *profile* folder and
 never leaves it. Online, the birth details you type are sent to the server only to calculate the chart and are not
 stored there; calculated charts (time and place, no name) are kept in the server's memory for up to an hour so

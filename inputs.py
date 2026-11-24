@@ -1,4 +1,5 @@
-"""Shared sidebar inputs: place search (GeoNames) or manual coordinates, and elevation.
+"""Shared sidebar inputs: place search (GeoNames) or manual coordinates, and elevation (ground height looked up
+from open elevation data, plus the eye height, following the Afterglow app).
 The last place query is remembered across the two pages."""
 import datetime as dt
 from zoneinfo import ZoneInfo
@@ -63,14 +64,19 @@ def place_picker(prefix):
                           placeholder='e.g. Mortlake, Kraków, Praha, New York')
         st.session_state['_place_q'] = q
         hits = find_places(q)
+        home0 = user_profile.get().get('home')
+        if why == 'home' and q == q0 and home0 and home0.get('src') == 'gps' and home0.get('tz'):
+            # where you live was set from the device's position: offer that exact spot first, not the town centre
+            hits = [dict(name=home0['name'], country=home0['country'], lat=home0['lat'], lon=home0['lon'],
+                         tz=home0['tz'], pop=0, here=True)] + list(hits)
         if not hits:
             st.warning('No match in the gazetteer (places with population ≥ 1000). Try another spelling '
                        'or enter coordinates manually.')
-            user_profile.page_end()
             st.stop()
         start = next((i for i, h in enumerate(hits) if lat0 is not None and q == q0
                       and abs(h['lat'] - lat0) < 1e-3 and abs(h['lon'] - lon0) < 1e-3), 0)
-        pick = st.selectbox('Matches', range(len(hits)), index=start, format_func=lambda i: places.label(hits[i]),
+        pick = st.selectbox('Matches', range(len(hits)), index=start, format_func=lambda i: (f"Where you live (your position near {hits[i]['name']})" if hits[i].get('here')
+                                                    else places.label(hits[i])),
                             key=prefix + '_pick')
         hit = hits[pick]
         place, lat, lon, tzname = f"{hit['name']}, {hit['country']}", hit['lat'], hit['lon'], hit['tz']
@@ -85,20 +91,46 @@ def place_picker(prefix):
         lat = st.number_input('Latitude (°N)', -89.0, 89.0, 51.5, 0.0001, format='%.4f', key=prefix + '_lat')
         lon = st.number_input('Longitude (°E)', -180.0, 180.0, 0.0, 0.0001, format='%.4f', key=prefix + '_lon')
         tzname = None
-    # elevation: starts at the elevation of where you live (profile) when this is your home town, else at 0 m
-    # (user request); it starts again whenever another place is chosen, and can always be typed over
+    # elevation (Afterglow's rules, user request): the ground height of where you live (profile) when this is your
+    # home place; otherwise looked up at the place's coordinates from open elevation data (places.lookup_elevation),
+    # 0 m if that fails. It starts again whenever another place is chosen, and can always be typed over. The charts
+    # are worked out for the eye, places.EYE_HEIGHT_M above the ground.
     home = user_profile.get().get('home')
     at_home = (not manual and bool(home) and abs(lat - home['lat']) < 1e-3 and abs(lon - home['lon']) < 1e-3)
-    default_elev = float(home.get('elev') or 0.0) if at_home else 0.0
-    here = (round(float(lat), 4), round(float(lon), 4), default_elev)
-    if st.session_state.get(prefix + '_elev_for') != here:
+    home_elev = home.get('elev') if at_home else None
+    if home_elev is not None and float(home_elev) < places.ELEV_MIN - 1:   # the old -500 m bug value: look it up
+        home_elev = None
+    here = (round(float(lat), 4), round(float(lon), 4), home_elev)
+    # also when the box itself was dropped: Streamlit forgets a widget's value when another page was shown, and the
+    # box then came back at its lowest value (-500 m, user report)
+    if st.session_state.get(prefix + '_elev_for') != here or prefix + '_elev' not in st.session_state:
         st.session_state[prefix + '_elev_for'] = here
-        st.session_state[prefix + '_elev'] = default_elev
-    elev = st.number_input('Elevation (m)', 0.0, 9000.0, step=10.0, key=prefix + '_elev',
-                           help=('Starts at the elevation of where you live (your profile). ' if at_home and default_elev
-                                 else 'Not in the gazetteer: add the elevation of where you live in your profile '
-                                      '(Edit profile) and it is filled in for your home town. ')
-                                + 'It changes sunrise, and so the planetary hours, slightly.')
-    if at_home and default_elev:
-        st.caption(f'Elevation {default_elev:.0f} m: where you live (your profile).')
+        if home_elev is not None:
+            found, src = float(home_elev), 'home'
+        else:
+            found, src = places.lookup_elevation(lat, lon)
+            src = src or 'none'
+        st.session_state[prefix + '_elev_src'] = src
+        st.session_state[prefix + '_elev_found'] = found or 0.0
+        st.session_state[prefix + '_elev'] = float(found or 0.0)
+    src = st.session_state.get(prefix + '_elev_src', 'none')
+    shown = st.session_state.get(prefix + '_elev_found', 0.0)
+    ground = st.number_input('Ground elevation (m above sea level)', places.ELEV_MIN, places.ELEV_MAX, step=1.0,
+                             format='%.0f', key=prefix + '_elev',
+                             help=({'home': 'Starts at the elevation of where you live (your profile). ',
+                                    'none': 'The elevation data could not be reached, so this starts at 0 m. '
+                                            'Type it in if you know it. '}.get(src)
+                                   or f'Looked up for this spot from {places.SOURCE_TEXT[src]}. '
+                                      'Type over it if you know better. ')
+                                  + f'The chart is worked out for your eyes, {places.EYE_HEIGHT_M:g} m above the '
+                                    'ground. Elevation changes sunrise, and so the planetary hours, slightly.')
+    elev = float(ground) + places.EYE_HEIGHT_M
+    if src == 'home':
+        st.caption(f'Ground {ground:.0f} m' + (': where you live (your profile).' if abs(ground - shown) < 0.5 else
+                   ' (typed in).') + f' Eye level {elev:.1f} m.')
+    elif src in places.SOURCE_TEXT:
+        st.caption((f'Ground {ground:.0f} m, looked up for this spot '
+                    f'({"AWS Terrain Tiles" if src == "tiles" else "Open-Meteo"}).' if abs(ground - shown) < 0.5 else
+                    f'Ground {ground:.0f} m (typed in; looked up: {shown:.0f} m).')
+                   + f' Eye level {elev:.1f} m.')
     return place, lat, lon, tzname, elev
