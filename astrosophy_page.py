@@ -367,8 +367,8 @@ Controlled studies have not found that birth charts predict personality or life 
 your profile is saved in the app's *profile* folder and
 never leaves it. Online, the birth details you type are sent to the server only to calculate the chart and are not
 stored there; calculated charts (time and place, no name) are kept in the server's memory for up to an hour so
-that pages redraw quickly. Your profile is kept only while the app is open, unless you tick *Remember me on this
-device*: then it is kept in this browser on this device, and nowhere else. The notes you write on the *Biography
+that pages redraw quickly. Your profile is kept in this browser on this device, and nowhere else (unless you chose
+*Forget me on this device*, in which case it lasts only while the app is open). The notes you write on the *Biography
 chart* are kept in exactly the same way (never in a friend card), and *Download my notes* saves them as a file you can keep.
 
 **Plain English.** The summary and the *What does this mean?* window restate these pictures in everyday words.

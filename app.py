@@ -75,7 +75,7 @@ st.markdown(theme.css(os.path.join(HERE, 'assets', 'background.jpg'), phone=devi
 import voice
 voice.new_page()               # no phrase twice on one page: a fresh register for this run
 st.markdown(voice.CSS, unsafe_allow_html=True)
-# online: "Remember me on this device" - read the profile kept in this browser (once), save it when it changes
+# online: the profile is kept in this browser by default - read it (once), save it whenever it changes
 getattr(user_profile, 'device_sync', lambda: None)()
 # a friend card opened from a QR code (the link carries ?card=LILLY1:...): offer to add it
 getattr(user_profile, 'incoming_card', lambda: None)()

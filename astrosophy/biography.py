@@ -12,7 +12,7 @@ On top of the chart the app marks
   * a dot in every box that has a note.
 
 Notes belong to the user's own chart (the profile's birth) and are kept like the profile: on the computer in the
-app's profile folder; online only while the app is open, unless "Remember me on this device" is ticked.
+app's profile folder; online in the browser's own storage on that device, unless "Forget me on this device" was chosen.
 """
 from __future__ import annotations
 

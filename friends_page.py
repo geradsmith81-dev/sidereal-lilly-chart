@@ -145,8 +145,8 @@ for fr in friends:
 st.caption('Saved on this computer in the app\'s "profile" folder.' if upf.LOCAL else
            ('Remembered on this device (with your profile). Keep their card files to add them on other devices.'
             if getattr(upf, 'remembered', lambda: False)() else
-            'Online, friends are kept only while the app is open, unless you tick "Remember me on this device" in '
-            'your profile. Keep their card files to add them again.'))
+            'This device is not keeping your friends (you chose "Forget me on this device"), so they last only while '
+            'the app is open. Keep their card files to add them again.'))
 
 # ---------------------------------------------------------------- 4. compare
 st.subheader('4 · Compare and combine')

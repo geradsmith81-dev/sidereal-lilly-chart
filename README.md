@@ -47,10 +47,12 @@ are validated, and pictures are re-encoded.
 ## Profile
 
 A profile box in the sidebar takes a name, a picture and birth details, and a home town, and personalises the page titles ("Gerad's auspicious dates"; the home page is "The Sidereal Oracle"). The home town is the starting place of the Chart and Auspicious dates pages; without it, the most populous gazetteer place in the browser's time zone (`st.context.timezone`) is used, and the page says so. The home town is never written into friend cards. The Chart page opens at the present moment in the local time of the home town (else the browser's time zone, else London); its **Now** button resets the date and time to the present in the chosen place's time zone.
-In this online version the profile is kept **only in the visitor's browser session**, unless the visitor ticks
-**Remember me on this device**: then the profile and friends are also kept in that browser's `localStorage` (pictures as
-small JPEGs), via a small `st.components.v2` component, and filled in again on the next visit. **Forget me on this
-device** deletes the stored copy. Nothing is written to the server, which all visitors share. The Windows desktop version (started from its icon or `Start app.pyw`)
+In this online version the profile and friends are kept **in the visitor's own browser**, automatically: in that
+browser's `localStorage` (pictures as small JPEGs), via a small `st.components.v2` component, and filled in again on
+the next visit, also after the app has been rebooted. **Forget me on this device** deletes the stored copy and leaves a
+small "keep nothing here" note, so that browser stores nothing until the visitor chooses **Remember me on this device**.
+In private browsing, where storage is blocked, the profile lasts only for the session. Nothing is written to the
+server, which all visitors share. The Windows desktop version (started from its icon or `Start app.pyw`)
 saves it in the user's own data folder, `%LOCALAPPDATA%\TheSiderealOracle\profile`, instead; when the desktop version is
 shared on a local network, only the person at that computer uses the saved profile.
 
@@ -142,5 +144,5 @@ JPL, Hipparcos and GeoNames data) keeps its own terms: see [THIRD-PARTY-NOTICES.
 - The desktop copy keeps its data and logs in `%LOCALAPPDATA%\TheSiderealOracle`, checks its program files against `MANIFEST.sha256` at every start, and each release publishes SHA-256 checksums of its zips in `SHA256SUMS.txt`.
 - All components are pinned to exact versions and installed with `--require-hashes`.
 - The desktop-only code (`desktop.py`) does nothing on a hosted copy: no Quit button is shown there.
-- The online copy writes nothing to the server: profiles stay in the visitor's browser session, or in that browser's own storage if the visitor ticks *Remember me on this device*.
+- The online copy writes nothing to the server: profiles are kept in the visitor's own browser storage (or only for the session, after *Forget me on this device* or in private browsing).
 - Uploaded pictures are limited to 15 MB and 40 million pixels and are re-encoded; friend cards and pasted card codes are limited to 1 MB and size-checked before they are unpacked.

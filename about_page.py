@@ -50,7 +50,7 @@ paraphrasing. The rude lines live in the column `crude` of `data/forecast_rules.
 and the punchlines in `data/punchlines.csv`; all three can be edited.
 """)
 # the app's promise (from what users of other astrology apps praise and complain about)
-st.success("**Free, with no ads, no trackers and no account.** Every reading comes from fixed rules taken from Lilly's 1647 book, each with its page: no AI chatbot writes them, and everyone gets the same reading for the same moment. Your birth details are used only to calculate charts. They are never stored on a server or shared, and are kept on your device only if you tick *Remember me on this device*.", icon=':material/verified_user:')
+st.success("**Free, with no ads, no trackers and no account.** Every reading comes from fixed rules taken from Lilly's 1647 book, each with its page: no AI chatbot writes them, and everyone gets the same reading for the same moment. Your birth details are used only to calculate charts. They are never stored on a server or shared: they are kept only on your own device, and *Forget me on this device* deletes them.", icon=':material/verified_user:')
 
 # ---------------------------------------------------------------- Lilly and his book
 st.subheader('William Lilly and his book')
@@ -198,9 +198,10 @@ st.subheader('Your information')
 st.markdown("Your name, picture, birth details and friends are " +
             ("saved only on this computer, in the app's **profile** folder, and none of it is sent anywhere."
              if user_profile.LOCAL else
-             "kept only while the app is open, unless you tick **Remember me on this device** in your profile: "
-             "then they are also kept in this browser's own storage on your phone or computer, and nowhere else. "
-             "**Forget me on this device** (in the sidebar) deletes that copy. Nothing is saved on the server.") +
+             "kept in this browser's own storage on your phone or computer, and nowhere else, so they are still "
+             "here next time, also after the app has been restarted. On a shared or borrowed device, use **Forget me "
+             "on this device** (in the sidebar): it deletes that copy, and this device keeps nothing until you choose "
+             "**Remember me on this device**. Nothing is saved on the server.") +
             " A friend card holds your name, birth details and (if you choose) picture: send it only to people you want "
             "to have them. **Use my location** (in your profile) asks your phone or computer for its position only when "
             "you press it, or once by itself while no home place is set; the position, rounded to about 10 m, is kept "

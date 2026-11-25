@@ -5,10 +5,12 @@ Where it is kept
     %LOCALAPPDATA%\\TheSiderealOracle\\profile (profile.json, avatar.png, friends.json, life_chart.json), so it is
     there next time. It never leaves the computer. When the app is shared on the network, only the person at this
     computer uses that saved profile; visitors from other devices are treated like visitors of the online app.
-  * Online (Streamlit Community Cloud) or any other start: for the current browser session only, unless the visitor
-    ticks "Remember me on this device". Then the profile and friends are also kept in that browser's own storage
-    (localStorage, on the visitor's phone or computer) and filled in again next time. Nothing is ever written to the
-    server's disk, which every visitor shares. "Forget me on this device" deletes the stored copy.
+  * Online (Streamlit Community Cloud) or any other start: automatically in that browser's own storage
+    (localStorage, on the visitor's phone or computer), so the profile and friends are filled in again next time,
+    also after the app has been restarted (user request, 25 Nov 2026). Nothing is ever written to the server's disk,
+    which every visitor shares. "Forget me on this device" deletes the stored copy and leaves a small note in its place
+    ("don't keep me here"), so that browser keeps nothing until the visitor chooses "Remember me on this device".
+    If the browser does not allow storage (private browsing), the profile lasts only while the app is open.
 
 Friend cards
   A friend card is a small JSON file (.lillycard) or a copy-paste text code ("LILLY1:..."), holding a name, the birth
@@ -171,7 +173,7 @@ def remove_friend(fid):
 # ---------------------------------------------------------------- the Astrosophy Birth Chart page (astrosophy_page.py)
 # "Whose chart?" on that page, and the notes of its Biography chart: {'1'..'84': {aspect key: text}}. The notes are
 # kept like the rest of the profile: on the computer in the profile folder (life_chart.json); online only while the
-# app is open, unless "Remember me on this device" is ticked. They never go into a friend card.
+# browser's own storage on this device (unless "Forget me on this device" was chosen). They never go into a friend card.
 MINE, OTHER = 'My birth chart', 'Another birth or moment'
 LIFE_ASPECTS = (('destiny', 'Destiny & health'), ('interests', 'Interests & studies'), ('people', 'People & family'),
                 ('places', 'Places & work'))
@@ -229,18 +231,21 @@ def life_storage_text():
     if _local():
         return 'Your notes are saved on this computer, in your user folder (%LOCALAPPDATA%\\TheSiderealOracle), and never leave it.'
     if remembered():
-        return 'Your notes are kept in this browser on this device (Remember me is on), and nowhere else.'
-    return ('Online, your notes are kept only while the app is open. To keep them, tick "Remember me on this device" '
-            'in your profile, or use "Download my notes" and load the file again next time.')
+        return 'Your notes are kept in this browser on this device, and nowhere else.'
+    return ('This device is not keeping your notes, so they last only while the app is open. To keep them, use '
+            '"Remember me on this device" in the sidebar, or "Download my notes" and load the file again next time.')
 
 
-# ---------------------------------------------------------------- "Remember me on this device" (online only)
+# ---------------------------------------------------------------- kept on this device (online only)
 # The browser's own storage (localStorage) on the visitor's phone or computer holds one JSON text: the profile and the
 # friends, pictures as small JPEGs. A tiny component (st.components.v2: JavaScript running in the visitor's browser)
 # reads it once per session and writes it whenever the profile or the friends change. The server keeps nothing.
+# This is ON by default (user request, 25 Nov 2026). "Forget me on this device" replaces the stored copy with OPTOUT,
+# a note that this browser should keep nothing, until "Remember me on this device" is chosen again.
 DEVICE_FORMAT = 'sidereal-oracle-device'
 DEVICE_MAX_CHARS = 4_000_000          # browsers allow about 5 MB per site
-REMEMBER = '_dev_remember'            # True: keep this browser's stored copy up to date
+REMEMBER = '_dev_remember'            # True: keep this browser's stored copy up to date (the default once it answers)
+OPTOUT = json.dumps({'format': 'sidereal-oracle-device', 'version': 1, 'optout': True}, separators=(',', ':'))
 _STORE_JS = """
 export default function (component) {
   const { data, setStateValue } = component;
@@ -339,6 +344,15 @@ def parse_device(text):
         return None
 
 
+def is_optout(text):
+    """True when this browser holds the "don't keep me here" note left by Forget me on this device."""
+    try:
+        d = json.loads(text) if text else None
+        return isinstance(d, dict) and d.get('format') == DEVICE_FORMAT and d.get('optout') is True
+    except Exception:
+        return False
+
+
 def device_available():
     """True when "Remember me on this device" can be offered (online, and the browser allows storage)."""
     ss = st.session_state
@@ -350,14 +364,15 @@ def remembered():
 
 
 def set_remember(on):
-    """Tick or untick "Remember me on this device". Unticking deletes the browser's stored copy."""
+    """Remember me (True) or Forget me (False) on this device. Forgetting replaces the browser's stored copy with
+    OPTOUT, so this browser keeps nothing from now on, also in later visits, until Remember me is chosen again."""
     ss = st.session_state
     if on and not ss.get(REMEMBER):
         ss[REMEMBER] = True
         ss.pop('_dev_sent', None)                        # write the current profile at the next run
     elif not on and ss.get(REMEMBER):
         ss[REMEMBER] = False
-        ss['_dev_forget'] = uuid.uuid4().hex[:12]        # delete the stored copy at the next run
+        ss['_dev_forget'] = uuid.uuid4().hex[:12]        # replace the stored copy with OPTOUT at the next run
 
 
 def _apply_loaded(prof, fl):
@@ -387,7 +402,7 @@ def device_sync():
     if not ss.get('_dev_loaded'):
         cmd = {'op': 'load', 'sid': sid}
     elif ss.get('_dev_forget'):
-        cmd = {'op': 'forget', 'nonce': ss['_dev_forget']}
+        cmd = {'op': 'save', 'nonce': ss['_dev_forget'], 'payload': OPTOUT, 'forget': True}
     elif ss.get(REMEMBER):
         text = device_payload()
         nonce = hashlib.sha1(text.encode('utf-8')).hexdigest()[:16]
@@ -409,13 +424,18 @@ def device_sync():
     if not ss.get('_dev_loaded') and isinstance(stored, dict) and stored.get('sid') == sid:
         ss['_dev_loaded'] = True
         ss['_dev_ok'] = bool(stored.get('ok'))
-        got = parse_device(stored.get('value'))
-        if got:
-            ss[REMEMBER] = True
-            _apply_loaded(*got)
-            ss['_dev_sent'] = hashlib.sha1(device_payload().encode('utf-8')).hexdigest()[:16]
+        value = stored.get('value')
+        if not ss['_dev_ok'] or is_optout(value):
+            ss[REMEMBER] = False                         # private browsing, or Forget me was chosen on this device
+        else:
+            ss[REMEMBER] = True                          # kept on this device by default
+            got = parse_device(value)
+            if got:
+                _apply_loaded(*got)
+                ss['_dev_sent'] = hashlib.sha1(device_payload().encode('utf-8')).hexdigest()[:16]
+            # otherwise the next run writes the current profile (possibly still empty) to this browser
     if isinstance(saved, dict) and saved.get('nonce') == cmd.get('nonce'):
-        if cmd['op'] == 'forget':
+        if cmd.get('forget'):
             ss.pop('_dev_forget', None)
             ss.pop('_dev_sent', None)
         else:
@@ -977,16 +997,17 @@ def edit_dialog():
                                 elev=h_elev, src='gps' if gps else 'town'))
         st.caption(f"{hh['name']}, {hh['country']} · {hh['lat']:.4f}°, {hh['lon']:.4f}° · ground {home['elev']:.0f} m · "
                    f"time zone {hh['tz']}. Not included in your friend card.")
-    remember = None
     if _local():
         st.caption('On this computer your profile is saved in your user folder (%LOCALAPPDATA%\\TheSiderealOracle) '
                    'and never leaves it.')
     elif device_available():
-        remember = st.checkbox('Remember me on this device', value=remembered(), key='pf_remember',
-                               help='Keeps your profile and friends in this browser, on this phone, tablet or computer '
-                                    'only, so they are here next time you open the app. Nothing is stored on the server.')
-        st.caption('Ticked: your profile and friends are kept in this browser on this device, and nowhere else. '
-                   'Do not tick it on a shared or borrowed device. Not ticked: they are kept only while the app is open.')
+        if remembered():
+            st.caption('Your profile and friends are kept in this browser on this device, and nowhere else, so they '
+                       'are here next time, also after the app has been restarted. On a shared or borrowed device, '
+                       'use "Forget me on this device" in the sidebar.')
+        else:
+            st.caption('This device is not keeping your profile (you chose "Forget me on this device"), so it lasts '
+                       'only while the app is open. To keep it, use "Remember me on this device" in the sidebar.')
     else:
         st.caption('Online, your profile is kept only while the app is open; nothing is stored on the server.'
                    + (' This browser does not allow the app to remember you (private browsing?).'
@@ -994,8 +1015,6 @@ def edit_dialog():
     c1, c2 = st.columns(2)
     if c1.button('Save', type='primary', width='stretch', disabled=bool(err)):
         save(name, show, birth if has_birth else None, home)
-        if remember is not None:
-            set_remember(remember)
         st.rerun()
     if c2.button('Cancel', width='stretch'):
         st.rerun()
@@ -1033,16 +1052,18 @@ def sidebar_card():
                            + (' **Could not save the latest changes: the browser\'s storage is full.**'
                               if st.session_state.get('_dev_save_failed') else ''))
                 if st.button('Forget me on this device', key='forget_btn', icon=':material/delete:', width='stretch',
-                             help='Deletes your profile and friends from this browser\'s storage. They stay on the '
-                                  'screen until you close the app.'):
+                             help='Deletes your profile and friends from this browser\'s storage, and this device '
+                                  'keeps nothing from now on. They stay on the screen until you close the app. Use '
+                                  'this on a shared or borrowed device.'):
                     set_remember(False)
                     st.toast('This device will no longer remember you.')
                     st.rerun()
-            elif p['name'] or p['avatar'] or p['birth'] or friends():
+            else:
+                st.caption(':material/smartphone: Not kept on this device (you chose Forget me).')
                 if st.button('Remember me on this device', key='remember_btn', icon=':material/smartphone:',
                              width='stretch',
-                             help='Keeps your profile and friends in this browser on this device, so they are here '
-                                  'next time. Nothing is stored on the server. Not for shared or borrowed devices.'):
+                             help='Keeps your profile and friends in this browser on this device again, so they are '
+                                  'here next time. Nothing is stored on the server. Not for shared or borrowed devices.'):
                     set_remember(True)
                     st.toast('This device will remember you.')
                     st.rerun()
