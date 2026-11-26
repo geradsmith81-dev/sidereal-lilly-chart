@@ -142,7 +142,7 @@ for fr in friends:
     if c2.button('Remove', key='rm_' + fr['id'], width='stretch'):
         upf.remove_friend(fr['id'])
         st.rerun()
-st.caption('Saved on this computer in the app\'s "profile" folder.' if upf.LOCAL else
+st.caption('Saved on this computer, in your user folder (%LOCALAPPDATA%\\TheSiderealOracle).' if getattr(upf, 'is_local', lambda: False)() else
            ('Remembered on this device (with your profile). Keep their card files to add them on other devices.'
             if getattr(upf, 'remembered', lambda: False)() else
             'This device is not keeping your friends (you chose "Forget me on this device"), so they last only while '

@@ -43,6 +43,11 @@ DIR = os.environ.get('SIDEREALORACLE_PROFILE_DIR') or os.path.join(HERE, 'profil
 _DISK = bool(os.environ.get('SIDEREALORACLE_PROFILE_DIR'))
 
 
+def is_local():
+    """Public form of _local() for the pages: True when this visitor's profile is kept on this computer's disk."""
+    return _local()
+
+
 def _local():
     """True when this visitor's profile is kept on this computer's disk: the desktop app, used at this computer.
     Visitors from other devices (network sharing) never see or change the saved profile."""

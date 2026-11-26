@@ -196,8 +196,8 @@ st.info("**A plain word about astrology.** This app shows how a 17th-century ast
 # ---------------------------------------------------------------- your data
 st.subheader('Your information')
 st.markdown("Your name, picture, birth details and friends are " +
-            ("saved only on this computer, in the app's **profile** folder, and none of it is sent anywhere."
-             if user_profile.LOCAL else
+            ("saved only on this computer, in your user folder (%LOCALAPPDATA%\\TheSiderealOracle), and none of it is sent anywhere."
+             if getattr(user_profile, 'is_local', lambda: False)() else
              "kept in this browser's own storage on your phone or computer, and nowhere else, so they are still "
              "here next time, also after the app has been restarted. On a shared or borrowed device, use **Forget me "
              "on this device** (in the sidebar): it deletes that copy, and this device keeps nothing until you choose "
