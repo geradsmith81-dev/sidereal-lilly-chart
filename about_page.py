@@ -214,7 +214,8 @@ st.markdown("Your name, picture, birth details and friends are " +
 st.subheader('Words used in the app')
 st.markdown("Short explanations of Lilly's terms. Each page number opens that page of the 1647 book (the Wellcome "
             "Library copy on the Internet Archive). The same explanations open from the small buttons marked "
-            "\u24d8 on the Chart page.")
+            "\u24d8 on the Chart page. Where Skyscript, the Medieval Astrology Guide or CHANI define the same word, a "
+            "**More** link opens their entry in a new tab; other writers' definitions can differ from Lilly's in details.")
 with st.expander('Show all the words', icon=':material/menu_book:'):
     glossary.full_list()
 

@@ -1,5 +1,6 @@
 """Tap-to-explain: short definitions of the terms the app uses, each with the page of Lilly's Christian Astrology
-(1647) it comes from and a link to that page of the scanned book (Wellcome Library copy, Internet Archive b30338724).
+(1647) it comes from and a link to that page of the scanned book (Wellcome Library copy, Internet Archive b30338724),
+plus "More:" links to the same term on Skyscript, the Medieval Astrology Guide and CHANI where they define it.
 
 Page references are the ones the app's data tables already cite. In the scan, printed page N is image N + 35
 (checked at pp.57-115), which the Internet Archive viewer numbers n(N + 34).
@@ -166,6 +167,216 @@ TERMS = {
                      'going back as "diminishing in speed", when "their energy is weaker".', ('I.24', 117)),
 }
 
+# "Read more" links (user request, 25 Nov 2026): where the term is defined on Skyscript's glossary (by letter page),
+# the Medieval Astrology Guide dictionary or CHANI's key terms. Each link jumps to the entry (#:~:text=, a text
+# fragment; browsers without it simply open the page). Their definitions can differ from Lilly's in details.
+READ_MORE = {
+    'ascendant': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/A#:~:text=Ascendant'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Ascendant%2D%20The%20point'),
+    ),
+    'lord_asc': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/S#:~:text=Significator'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Significator%2D%20A%20planet%2C'),
+    ),
+    'hours': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/P#:~:text=Planetary%20Hours'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Chaldean%20Order%2D%20A'),
+    ),
+    'radical': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/R#:~:text=Radical'),
+    ),
+    'considerations': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/C#:~:text=Considerations'),
+    ),
+    'fortitudes': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/F#:~:text=Fortitude'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Accidental%20Dignity%2D%20A'),
+    ),
+    'essential': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/E#:~:text=Essential%20Dignity'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Essential%20Dignity%2FDebility%2D%20A'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Essential%20dignities%20describe'),
+    ),
+    'detriment': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/D#:~:text=Detriment'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Detriment%20%2D%20The'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Essential%20dignities%20describe'),
+    ),
+    'fall': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/F#:~:text=Fall'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Fall%2D%20A%20form'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Essential%20dignities%20describe'),
+    ),
+    'peregrine': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/P#:~:text=Peregrine'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Peregrine%2D%20A%20condition'),
+    ),
+    'reception': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/R#:~:text=Reception'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Reception%2D%20A%20technique'),
+    ),
+    'angles': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/A#:~:text=Angular'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Angular%20Houses%20%2D'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=The%20angles%20are'),
+    ),
+    'houses': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/H#:~:text=House'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=House%2D%20One%20of'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=House%20systems%20are'),
+    ),
+    'five_degree': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/C#:~:text=Cusp'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Cusp%2D%20A%20point'),
+    ),
+    'retrograde': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/R#:~:text=Retrograde'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=A%20retrograde%20is'),
+    ),
+    'speed': (
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Increasing%20in%20Motion%2D'),
+    ),
+    'oriental': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/O#:~:text=Oriental'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Oriental%2D%20A%20condition'),
+    ),
+    'moon_light': (
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Increasing%20in%20Light%2D'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=The%20Moon%20phase'),
+    ),
+    'combust': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/C#:~:text=Combust'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Combustion%2D%20Occurs%20when'),
+    ),
+    'cazimi': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/C#:~:text=Cazimi'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Cazimi%2D%20Occurs%20when'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Derived%20from%20the'),
+    ),
+    'beams': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/U#:~:text=Under%20the%20Beams'),
+    ),
+    'aspects': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/A#:~:text=Aspect'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Aspect%2D%20A%20geometric'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Aspects%20are%20the'),
+    ),
+    'orbs': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/O#:~:text=Orb'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=An%20orb%20refers'),
+    ),
+    'partile': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/P#:~:text=Partile'),
+    ),
+    'applying': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/A#:~:text=Applying'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Applying%2D%20An%20aspect'),
+    ),
+    'perfection': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/T#:~:text=Translation%20of%20Light'),
+    ),
+    'void': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/V#:~:text=Void%20of%20Course'),
+    ),
+    'via_combusta': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/V#:~:text=Via%20Combusta'),
+    ),
+    'fortune': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/P#:~:text=Part%20of%20Fortune'),
+    ),
+    'fortunes': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/F#:~:text=Fortunes'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Fortunes%2D%20See%20Benefic'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=According%20to%20the%20ancients%2C%20some%20planets%20tend%20to%20be%20more%20helpful'),
+    ),
+    'stars': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/F#:~:text=Fixed%20Stars'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Fixed%20Stars%2D%20Stars'),
+    ),
+    'besieged': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/B#:~:text=Besieged'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Besieged%2D%20A%20configuration'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Also%20known%20as'),
+    ),
+    'nodes': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/D#:~:text=Dragon%27s%20Head'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Dragon%27s%20Head%2D%20The'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Astronomically%20speaking%2C%20the'),
+    ),
+    'p_sect': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/S#:~:text=Sect'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Sect%2D%20A%20consideration'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Sect%20is%20a'),
+    ),
+    'p_places': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/A#:~:text=Angular'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Angles%2D%20The%20Ascendant%2C'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=The%20angles%20are'),
+    ),
+    'p_lights': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/L#:~:text=Luminaries'),
+    ),
+    'p_gender': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/M#:~:text=Masculine'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Feminine%2D%20The%20negative'),
+    ),
+    'p_benefic': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/B#:~:text=Benefic'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Benefic%2D%20From%20the'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=According%20to%20the%20ancients%2C%20some%20planets%20tend%20to%20be%20more%20helpful'),
+    ),
+    'p_ruler': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/A#:~:text=Almuten'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Almuten%20of%20the%20Figure%2D'),
+    ),
+    'p_honour': (),
+    'p_fortune': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/P#:~:text=Part%20of%20Fortune'),
+    ),
+    'p_moon': (
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Increasing%20in%20Light%2D'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=The%20Moon%20phase'),
+    ),
+    'p_testimonies': (
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Essential%20Dignity%2FDebility%2D%20A'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Essential%20dignities%20describe'),
+    ),
+    'p_familiarity': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/A#:~:text=Aspect'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Aspect%2D%20A%20geometric'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Aspects%20are%20the'),
+    ),
+    'p_face': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/F#:~:text=Face'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Face%2D%20The%20weakest'),
+    ),
+    'p_oriental': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/O#:~:text=Oriental'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Oriental%2D%20A%20condition'),
+    ),
+    'p_rays': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/U#:~:text=Under%20the%20Beams'),
+    ),
+    'p_overcome': (
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=When%20two%20planets%20are%20engaged'),
+    ),
+    'sidereal': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/S#:~:text=Sidereal'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Sidereal%20Zodiac%2D%20A'),
+    ),
+    'p_horoscope': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/H#:~:text=Horoscope'),
+        ('Medieval Astrology Guide', 'https://www.medievalastrologyguide.com/astrology-dictionary#:~:text=Horoscope%2D%20The%20Ascendant'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=Your%20birth%20chart%20is%20a%20freeze%2Dframe'),
+    ),
+    'p_retrograde': (
+        ('Skyscript', 'https://www.skyscript.co.uk/glossary/R#:~:text=Retrograde'),
+        ('CHANI', 'https://www.chani.com/blogs/astrological-key-terms#:~:text=A%20retrograde%20is'),
+    ),
+}
+
+
 # names used inside the dignity tables -> the term that explains them
 _ITEM = {'house': 'essential', 'exaltation': 'essential', 'triplicity': 'essential', 'term': 'essential',
          'face': 'essential', 'detriment': 'detriment', 'fall': 'fall', 'peregrine': 'peregrine',
@@ -228,6 +439,12 @@ def scan_url(page):
     return f'{SCAN}/page/n{int(page) + 34}/mode/1up'
 
 
+def read_more_md(key):
+    """'More: Skyscript · Medieval Astrology Guide · CHANI' with links, or '' if no site defines the term."""
+    links = READ_MORE.get(key) or ()
+    return ('More: ' + ' · '.join(f'[{site}]({url})' for site, url in links)) if links else ''
+
+
 def page_links(pages):
     return ', '.join(f'[p.{p}]({scan_url(p)})' for p in pages)
 
@@ -249,7 +466,8 @@ def explain_md(key):
         cite = f'Ptolemy, Tetrabiblos [{pages[0]}]({pt_url(*pages)})'
     else:
         cite = ('Lilly, ' + page_links(pages)) if pages else 'An app rule.'   # short, so it never repeats as a phrase
-    return f'**{title}**  \n{text}  \n\n<small>{cite}</small>'
+    more = read_more_md(key)
+    return f'**{title}**  \n{text}  \n\n<small>{cite}</small>' + (f'  \n<small>{more}</small>' if more else '')
 
 
 _POP_KEY = 'key' in inspect.signature(st.popover).parameters
@@ -310,4 +528,5 @@ def full_list():
     for k, (title, text, pages) in sorted(TERMS.items(), key=lambda kv: kv[1][0].lower()):
         cite = (f'Ptolemy, Tetrabiblos [{pages[0]}]({pt_url(*pages)})' if isinstance(pages, tuple)
                 else page_links(pages) if pages else 'app rule')
-        st.markdown(f'**{title}**: {text} <small>({cite})</small>', unsafe_allow_html=True)
+        more = read_more_md(k)
+        st.markdown(f'**{title}**: {text} <small>({cite}){" · " + more if more else ""}</small>', unsafe_allow_html=True)
